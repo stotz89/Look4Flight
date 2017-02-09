@@ -57,6 +57,7 @@ public class GetData {
 
     public boolean createURI(String depature, String destination, String date) {
 
+        //URI erzeugen
 
         final String FLIGHT_BASE_URL = "http://192.168.3.12/Look4Flight/searchflight_nonstop_by_date.php";
         final String IATA_FROM_PARAM = "iata_from";
