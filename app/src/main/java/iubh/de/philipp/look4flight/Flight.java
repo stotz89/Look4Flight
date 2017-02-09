@@ -70,6 +70,7 @@ public class Flight {
 
     public String getmIataFrom() {
         return mIataFrom;
+
     }
 
     public String getmIataTo() {
