@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Look4Flight</string>
+    <string name="btn_search">Suchen</string>
+    <string name="from_date">Abflugdatum</string>
+    <string name="to_date">Rückflugdatum</string>
+    <string name="origin">Abflug</string>
+    <string name="destination">Ziel</string>
+    <string name="mAC_origin">Abflughafen</string>
+    <string name="finden">Finden...</string>
+</resources>

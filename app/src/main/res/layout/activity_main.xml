@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="iubh.de.philipp.look4flight.MainActivity">
+
+    <AutoCompleteTextView
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/etxt_autoComplete_origin"
+        android:hint="@string/origin"
+        android:layout_alignParentLeft="true"/>
+
+    <EditText
+        android:id="@+id/etxt_fromdate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="@string/from_date"
+        android:layout_below="@+id/etxt_autoComplete_origin"/>
+
+    <AutoCompleteTextView
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/etxt_autoComplete_destination"
+        android:hint="@string/destination"
+        android:layout_marginTop="50dp"
+        android:layout_below="@+id/etxt_fromdate" />
+
+    <EditText
+        android:id="@+id/etxt_todate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="@string/to_date"
+        android:layout_below="@+id/etxt_autoComplete_destination"/>
+
+    <Button
+        android:text="@string/btn_search"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/start_search"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="22dp" />
+
+</RelativeLayout>
