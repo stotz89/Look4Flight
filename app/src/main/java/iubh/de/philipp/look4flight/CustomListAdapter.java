@@ -16,22 +16,43 @@ import java.util.ArrayList;
 
 public class CustomListAdapter extends BaseAdapter {
 
-    private ArrayList<Flight> listData;
+    private ArrayList<Roundtrip> mRoundtrip;
     private LayoutInflater layoutInflater;
+    private int position;
 
-    public CustomListAdapter(Context aContext, ArrayList<Flight> listData) {
-        this.listData = listData;
+    public CustomListAdapter(Context aContext, ArrayList<Roundtrip> roundtrip) {
+        this.mRoundtrip = roundtrip;
         layoutInflater = LayoutInflater.from(aContext);
     }
 
+    /*@Override
+    public int getCountTo() {
+        return flightTo.size();
+    }
+
+    public int getCountBack() {
+        return flightBack.size();
+    }
+
+    @Override
+    public Object getItemTo(int position) {
+        return flightTo.get(position);
+    }
+
+    public Object getItemBack(int position) {
+        return flightBack.get(position);
+    }*/
+
     @Override
     public int getCount() {
-        return listData.size();
+        Log.e("GETCOUNT", "Es wurde getCount aufgerufen.");
+        return mRoundtrip.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return listData.get(position);
+        Log.e("GETITEM", "Es wurde getItem aufgerufen.");
+        return mRoundtrip.get(position);
     }
 
     @Override
@@ -52,32 +73,33 @@ public class CustomListAdapter extends BaseAdapter {
             holder.Price = (TextView) convertView.findViewById(R.id.list_price);
 
             //holder = new ViewHolder();
-            holder.OriginView_2 = (TextView) convertView.findViewById(R.id.list_origin_2);
-            holder.DestinationView_2 = (TextView) convertView.findViewById(R.id.list_destination_2);
-            holder.DateView_2 = (TextView) convertView.findViewById(R.id.list_date_from_2);
-            holder.DepTimeView_2 = (TextView) convertView.findViewById(R.id.list_dep_time_2);
-            holder.ArrTimeView_2 = (TextView) convertView.findViewById(R.id.list_arr_time_2);
+            holder.OriginViewBack = (TextView) convertView.findViewById(R.id.list_origin_2);
+            holder.DestinationViewBack = (TextView) convertView.findViewById(R.id.list_destination_2);
+            holder.DateViewBack = (TextView) convertView.findViewById(R.id.list_date_from_2);
+            holder.DepTimeViewBack = (TextView) convertView.findViewById(R.id.list_dep_time_2);
+            holder.ArrTimeViewBack = (TextView) convertView.findViewById(R.id.list_arr_time_2);
 
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        holder.OriginView.setText(listData.get(position).getmCityFrom());
-        holder.DestinationView.setText(listData.get(position).getmCityTo());
-        holder.DateView.setText(listData.get(position).getmDate());
-        holder.DepTimeView.setText(listData.get(position).getmDepTime());
-        holder.ArrTimeView.setText(listData.get(position).getmArrTime());
-        holder.Price.setText(Long.toString(listData.get(position).getmPriceE()));
-
-        Log .e("Price", "Preis: " + Long.toString(listData.get(position).getmPriceE()));
+        holder.OriginView.setText(mRoundtrip.get(position).getmFlightTo().getmCityFrom());
+        holder.DestinationView.setText(mRoundtrip.get(position).getmFlightTo().getmCityTo());
+        holder.DateView.setText(mRoundtrip.get(position).getmFlightTo().getmDate());
+        holder.DepTimeView.setText(mRoundtrip.get(position).getmFlightTo().getmDepTime());
+        holder.ArrTimeView.setText(mRoundtrip.get(position).getmFlightTo().getmArrTime());
 
 
-        holder.OriginView_2.setText(listData.get(position).getmCityFrom());
-        holder.DestinationView_2.setText(listData.get(position).getmCityTo());
-        holder.DateView_2.setText(listData.get(position).getmDate());
-        holder.DepTimeView_2.setText(listData.get(position).getmDepTime());
-        holder.ArrTimeView_2.setText(listData.get(position).getmArrTime());
+        //Log .e("Price", "Preis: " + Long.toString(listData.get(position).getmPriceE()));
+
+        holder.OriginViewBack.setText(mRoundtrip.get(position).getmFlightBack().getmCityFrom());
+        holder.DestinationViewBack.setText(mRoundtrip.get(position).getmFlightBack().getmCityTo());
+        holder.DateViewBack.setText(mRoundtrip.get(position).getmFlightBack().getmDate());
+        holder.DepTimeViewBack.setText(mRoundtrip.get(position).getmFlightBack().getmDepTime());
+        holder.ArrTimeViewBack.setText(mRoundtrip.get(position).getmFlightBack().getmArrTime());
+
+        holder.Price.setText(Long.toString(mRoundtrip.get(position).getmFlightTo().getmPriceE() + mRoundtrip.get(position).getmFlightBack().getmPriceE()));
         return convertView;
     }
 
@@ -89,11 +111,11 @@ public class CustomListAdapter extends BaseAdapter {
         TextView ArrTimeView;
         TextView Price;
 
-        TextView OriginView_2;
-        TextView DestinationView_2;
-        TextView DateView_2;
-        TextView DepTimeView_2;
-        TextView ArrTimeView_2;
+        TextView OriginViewBack;
+        TextView DestinationViewBack;
+        TextView DateViewBack;
+        TextView DepTimeViewBack;
+        TextView ArrTimeViewBack;
 
     }
 

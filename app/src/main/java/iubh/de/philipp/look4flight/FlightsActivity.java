@@ -22,6 +22,7 @@ public class FlightsActivity extends AppCompatActivity {
 
     private ArrayList<Flight> mFlightsTo;
     private ArrayList<Flight> mFlightsBack;
+    private ArrayList<Roundtrip> mRoundtrip;
 
     private GetData jsonFlightTo;
     private GetData jsonFlightBack;
@@ -50,13 +51,36 @@ public class FlightsActivity extends AppCompatActivity {
         mFlightsTo = jsonFlightTo.getmFlights();
         mFlightsBack = jsonFlightBack.getmFlights();
 
-        itemListView.setAdapter(new CustomListAdapter(this, mFlightsTo));
+        mRoundtrip = new ArrayList<Roundtrip>();
+
+        // Loop über jeden Hinflug
+        for(int iHin=0; iHin<mFlightsTo.size(); iHin++) {
+
+            Flight tempFlightTo = mFlightsTo.get(iHin);
+            // Jeden Hinflug mit allen Rückflügen kombinieren.
+            for(int iRue=0; iRue<mFlightsBack.size(); iRue++) {
+                Flight tempFlightBack = mFlightsBack.get(iRue);
+
+                Roundtrip RoundtripObject = new Roundtrip(tempFlightTo, tempFlightBack);
+
+                this.mRoundtrip.add(RoundtripObject);
+
+            }
+
+        }
+
+        for(Roundtrip singleRoundtrip: mRoundtrip) {
+            Log.v(LOG_TAG, mRoundtrip.toString());
+        }
+
+        itemListView.setAdapter(new CustomListAdapter(this, mRoundtrip));
         itemListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 Object o = itemListView.getItemAtPosition(position);
-                Flight selectedFlight = (Flight) o;
-                Log.e(LOG_TAG, selectedFlight.toString());
+                Roundtrip selectedFlight = (Roundtrip) o;
+                Log.e(LOG_TAG, selectedFlight.getmFlightTo().toString());
+                Log.e(LOG_TAG, selectedFlight.getmFlightBack().toString());
             }
         });
 

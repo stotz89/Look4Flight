@@ -9,14 +9,16 @@
     android:rowCount="1">
 
     <GridLayout
+        android:layout_row="0"
+        android:layout_column="0"
         android:layout_gravity="left"
-        android:layout_width="match_parent"
+        android:layout_width="250dp"
         android:layout_height="match_parent"
         android:columnCount="1"
         android:rowCount="2">
 
         <RelativeLayout
-            android:layout_gravity="top"
+            android:layout_row="0"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -73,7 +75,7 @@
         </RelativeLayout>
 
         <RelativeLayout
-            android:layout_gravity="bottom"
+            android:layout_row="1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -132,18 +134,21 @@
     </GridLayout>
 
 
-    <RelativeLayout
-        android:layout_gravity="right"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+
 
         <TextView
+            android:layout_row="0"
+            android:layout_column="1"
+            android:minWidth="30dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/list_price"
-            android:layout_marginRight="20dip"/>
+            android:layout_gravity="center"
+            android:textColor="#343434"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:id="@+id/list_price"/>
 
-    </RelativeLayout>
+
 
 
 </GridLayout>
