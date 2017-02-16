@@ -10,6 +10,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by philipp on 20.01.17.
@@ -20,9 +21,12 @@ public class FlightsActivity extends AppCompatActivity {
 
     private ListView itemListView;
 
-    private ArrayList<Flight> mFlightsTo;
-    private ArrayList<Flight> mFlightsBack;
+    private ArrayList<Flight> mFlightsTo = new ArrayList<Flight>();
+    private ArrayList<Flight> mFlightsBack = new ArrayList<Flight>();
     private ArrayList<Roundtrip> mRoundtrip;
+
+    private List<String> originArray = new ArrayList<String>();
+    private List<String> destinationArray = new ArrayList<String>();
 
     private GetData jsonFlightTo;
     private GetData jsonFlightBack;
@@ -40,16 +44,39 @@ public class FlightsActivity extends AppCompatActivity {
         String dateFrom = oldactivity.getExtras().getString("dateFrom");
         String dateTo = oldactivity.getExtras().getString("dateTo");
 
-        //Log.e(LOG_TAG, origin + destination + date);
+        //Split destination and origin into an srtring array in case of a multi entry
+        String[] temp = origin.split(",");
+        for(String s : temp) {
+            if (s != null && s.length() >= 3) {
+                originArray.add(s.substring(0,3));
+            }
+        }
 
-        jsonFlightTo = new GetData(origin, destination, dateFrom);
-        jsonFlightBack = new GetData(destination, origin, dateTo);
+        temp = destination.split(",");
+        for(String s : temp) {
+            if (s != null && s.length() >= 3) {
+                destinationArray.add(s.substring(0,3));
+            }
+        }
 
-        jsonFlightTo.startProcessing(FlightsActivity.this);
-        jsonFlightBack.startProcessing(FlightsActivity.this);
+        //Loop über die Arrays um alle Kombinationen zu bekommen.
+        for(int iOrigin=0; iOrigin<originArray.size(); iOrigin++) {
 
-        mFlightsTo = jsonFlightTo.getmFlights();
-        mFlightsBack = jsonFlightBack.getmFlights();
+            for(int iDest=0; iDest<destinationArray.size(); iDest++) {
+                Log.e(LOG_TAG, "Origin: " + originArray.get(iOrigin));
+                Log.e(LOG_TAG, "Destination: " + destinationArray.get(iDest));
+
+                jsonFlightTo = new GetData(originArray.get(iOrigin), destinationArray.get(iDest), dateFrom);
+                jsonFlightBack = new GetData(destinationArray.get(iDest), originArray.get(iOrigin), dateTo);
+
+                jsonFlightTo.startProcessing(FlightsActivity.this);
+                jsonFlightBack.startProcessing(FlightsActivity.this);
+
+                this.mFlightsTo.addAll(jsonFlightTo.getmFlights());
+                this.mFlightsBack.addAll(jsonFlightBack.getmFlights());
+
+            }
+        }
 
         mRoundtrip = new ArrayList<Roundtrip>();
 

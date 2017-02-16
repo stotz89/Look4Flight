@@ -1,17 +1,20 @@
 package iubh.de.philipp.look4flight;
 
 import android.app.DatePickerDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.MultiAutoCompleteTextView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -27,8 +30,9 @@ public class MainActivity extends AppCompatActivity {
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     //Alles zur Abflug/Zielflughafen
-    private AutoCompleteTextView AutoCompleteOrigin;
-    private AutoCompleteTextView AutoCompleteDestination;
+    private MultiAutoCompleteTextView MultiAutoCompleteOrigin;
+    private MultiAutoCompleteTextView MultiAutoCompleteDestination;
+    //private MultiAutoCompleteTextView MultiAuto;
     private ArrayList<String> AirlineList = new ArrayList<String>();
 
     // Alles was zur Datumsauswahl gehört....
@@ -42,6 +46,17 @@ public class MainActivity extends AppCompatActivity {
 
     //Buttons
     private Button search;
+    private Button gps;
+
+    //Location
+    private LocationManager locationManager;
+    private LocationListener locationListener;
+
+    private Double mLatitude;
+    private Double mLongtitude;
+
+    //Sonstiges
+    private Context context;
 
     //Progress Dialog
     //private final ProgressDialog dialog = new ProgressDialog(MainActivity.this);
@@ -59,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         setDateTimeField();
 
         initializeAutoCompletion();
-
+        context = getApplicationContext();
         dateFormatter = new SimpleDateFormat("dd.MM.yyyy", Locale.GERMANY);
         dateFormatterDB = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -74,23 +89,31 @@ public class MainActivity extends AppCompatActivity {
 
                 String dateFrom = fromDateEditText.getText().toString();
                 String dateTo = toDateEditText.getText().toString();
-                String origin = AutoCompleteOrigin.getText().toString();
-                String destination = AutoCompleteDestination.getText().toString();
+                String origin = MultiAutoCompleteOrigin.getText().toString();
+                String destination = MultiAutoCompleteDestination.getText().toString();
 
 
                 if (view == fromDateEditText) {
                     fromDatePickerDialog.show();
                 } else if (view == toDateEditText) {
                     toDatePickerDialog.show();
+                } else if (view == gps) {
+
+/*                    getAirportByGPS();
+
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0, locationListener);*/
+
+
                 } else if (view == search) {
 
                     if (origin.isEmpty() || destination.isEmpty()) {
-                        Toast.makeText(getApplicationContext(), "Bitte Flughäfen eingeben", Toast.LENGTH_LONG);
+                        Toast.makeText(context, "Bitte Flughäfen eingeben", Toast.LENGTH_SHORT).show();
+                        //Log.e(LOG_TAG, "Flughäfen nicht eingegeben");
                     } else {
 
                         // Get Values of field input
-                        origin = origin.substring(0, 3);
-                        destination = destination.substring(0, 3);
+                        /*origin = origin.substring(0, 3);
+                        destination = destination.substring(0, 3);*/
 
                         try {
                             if (!dateFrom.isEmpty()) {
@@ -138,9 +161,10 @@ public class MainActivity extends AppCompatActivity {
                 String airlineID = airlines.get("ID");
                 String airlineName = airlines.get("NAME");
                 String airlineIATA = airlines.get("IATA");
+                String airlineCity = airlines.get("CITY");
                 String airlineCountry = airlines.get("COUNTRY");
 
-                AirlineList.add(index, airlineIATA + " / " + airlineName);
+                AirlineList.add(index, airlineIATA + " / " + airlineName + " / " + airlineCity);
                 index++;
             }
 
@@ -151,12 +175,18 @@ public class MainActivity extends AppCompatActivity {
         //Log.e("Array", Integer.toString(AirlineList.size()));
         //Log.e("Array", AirlineList.get(0));
 
+        MultiAutoCompleteDestination.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
+        MultiAutoCompleteOrigin.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
+
         ArrayAdapter adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, AirlineList);
 
-        AutoCompleteOrigin.setAdapter(adapter);
-        AutoCompleteOrigin.setThreshold(2);
-        AutoCompleteDestination.setAdapter(adapter);
-        AutoCompleteDestination.setThreshold(2);
+        MultiAutoCompleteOrigin.setAdapter(adapter);
+        MultiAutoCompleteOrigin.setThreshold(2);
+        MultiAutoCompleteDestination.setAdapter(adapter);
+        MultiAutoCompleteDestination.setThreshold(2);
+
+        //MultiAuto.setAdapter(adapter);
+        //MultiAuto.setThreshold(2);
 
 
     }
@@ -164,8 +194,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void findViewsById() {
 
-        AutoCompleteOrigin = (AutoCompleteTextView) findViewById(R.id.etxt_autoComplete_origin);
-        AutoCompleteDestination = (AutoCompleteTextView) findViewById(R.id.etxt_autoComplete_destination);
+        MultiAutoCompleteOrigin = (MultiAutoCompleteTextView) findViewById(R.id.etxt_autoComplete_origin);
+        MultiAutoCompleteDestination = (MultiAutoCompleteTextView) findViewById(R.id.etxt_autoComplete_destination);
+
+        //MultiAuto = (MultiAutoCompleteTextView) findViewById(R.id.multiAutoCompleteTextView);
 
         fromDateEditText = (EditText) findViewById(R.id.etxt_fromdate);
         fromDateEditText.setInputType(InputType.TYPE_NULL);
@@ -175,7 +207,9 @@ public class MainActivity extends AppCompatActivity {
         toDateEditText.setInputType(InputType.TYPE_NULL);
 
         search = (Button) findViewById(R.id.start_search);
+        gps = (Button) findViewById(R.id.gps);
         search.setOnClickListener(OnClickListener);
+        gps.setOnClickListener(OnClickListener);
 
 
     }
@@ -214,7 +248,64 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    ;
+    /*private void getAirportByGPS() {
+
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                mLatitude = location.getLatitude();
+                mLongtitude = location.getLongitude();
+                Log.e(LOG_TAG, "Latitude: " + Double.toString(mLatitude) + "/ Longitude: " + Double.toString(mLongtitude));
+            }
+
+            @Override
+            public void onStatusChanged(String s, int i, Bundle bundle) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String s) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String s) {
+                Log.e(LOG_TAG, "GPS is disabled");
+            }
+        };
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+
+            requestPermissions(new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.INTERNET
+            }, 10 );
+            return;
+        } else {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0, locationListener);
+        }
+
+    }
 
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        switch (requestCode){
+            case 10:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                return;
+                }
+        }
+    }*/
 }

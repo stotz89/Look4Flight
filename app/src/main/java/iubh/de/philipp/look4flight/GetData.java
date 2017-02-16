@@ -131,45 +131,48 @@ public class GetData {
         final String FLIGHT_DEP_TIME = "dep_time";
         final String FLIGHT_ARR_TIME = "arr_time";
 
-        try {
+        if (!jsonResponse.isEmpty()) {
 
-            JSONObject jsonData = new JSONObject(jsonResponse);
-            JSONArray itemsArray = jsonData.getJSONArray(FLIGHTS);
-            for(int i=0; i<itemsArray.length(); i++) {
+            try {
 
-                JSONObject jsonFlight = itemsArray.getJSONObject(i);
-                String id = jsonFlight.getString(FLIGHT_ID);
-                int no = jsonFlight.getInt(FLIGHT_NO);
-                String date = jsonFlight.getString(FLIGHT_DATE);
-                long price_e = jsonFlight.getLong(FLIGHT_PRICE_E);
-                long price_b = jsonFlight.getLong(FLIGHT_PRICE_B);
-                long price_f = jsonFlight.getLong(FLIGHT_PRICE_F);
-                String curr = jsonFlight.getString(FLIGHT_CURR);
-                String iata_from = jsonFlight.getString(FLIGHT_IATA_FROM);
-                String city_from = jsonFlight.getString(FLIGHT_CITY_FROM);
-                String iata_to = jsonFlight.getString(FLIGHT_IATA_TO);
-                String city_to = jsonFlight.getString(FLIGHT_CITY_TO);
-                long duration = jsonFlight.getLong(FLIGHT_DURATION);
-                String dep_time = jsonFlight.getString(FLIGHT_DEP_TIME);
-                String arr_time = jsonFlight.getString(FLIGHT_ARR_TIME);
+                JSONObject jsonData = new JSONObject(jsonResponse);
+                JSONArray itemsArray = jsonData.getJSONArray(FLIGHTS);
+                for (int i = 0; i < itemsArray.length(); i++) {
 
-                Flight FlightObject = new Flight(id, no, date, price_e, price_b, price_f, curr, iata_from, city_from, iata_to, city_to, duration, dep_time, arr_time);
+                    JSONObject jsonFlight = itemsArray.getJSONObject(i);
+                    String id = jsonFlight.getString(FLIGHT_ID);
+                    int no = jsonFlight.getInt(FLIGHT_NO);
+                    String date = jsonFlight.getString(FLIGHT_DATE);
+                    long price_e = jsonFlight.getLong(FLIGHT_PRICE_E);
+                    long price_b = jsonFlight.getLong(FLIGHT_PRICE_B);
+                    long price_f = jsonFlight.getLong(FLIGHT_PRICE_F);
+                    String curr = jsonFlight.getString(FLIGHT_CURR);
+                    String iata_from = jsonFlight.getString(FLIGHT_IATA_FROM);
+                    String city_from = jsonFlight.getString(FLIGHT_CITY_FROM);
+                    String iata_to = jsonFlight.getString(FLIGHT_IATA_TO);
+                    String city_to = jsonFlight.getString(FLIGHT_CITY_TO);
+                    long duration = jsonFlight.getLong(FLIGHT_DURATION);
+                    String dep_time = jsonFlight.getString(FLIGHT_DEP_TIME);
+                    String arr_time = jsonFlight.getString(FLIGHT_ARR_TIME);
 
-                this.mFlights.add(FlightObject);
+                    Flight FlightObject = new Flight(id, no, date, price_e, price_b, price_f, curr, iata_from, city_from, iata_to, city_to, duration, dep_time, arr_time);
+
+                    this.mFlights.add(FlightObject);
+                }
+
+                for (Flight singleFlight : mFlights) {
+                    Log.v(LOG_TAG, singleFlight.toString());
+                }
+
+            } catch (JSONException jsone) {
+                jsone.printStackTrace();
+                Log.e(LOG_TAG, "Error processing Json data");
+                mConvertingStatus = ConvertingStatus.FAILED_OR_EMPTY;
             }
 
-            for(Flight singleFlight: mFlights) {
-                Log.v(LOG_TAG, singleFlight.toString());
-            }
+            this.mConvertingStatus = ConvertingStatus.OK;
 
-        } catch(JSONException jsone) {
-            jsone.printStackTrace();
-            Log.e(LOG_TAG, "Error processing Json data");
-            mConvertingStatus = ConvertingStatus.FAILED_OR_EMPTY;
         }
-
-        this.mConvertingStatus = ConvertingStatus.OK;
-
 
     }
 
