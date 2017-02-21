@@ -17,31 +17,12 @@ import java.util.ArrayList;
 public class CustomListAdapter extends BaseAdapter {
 
     private ArrayList<Roundtrip> mRoundtrip;
-    private LayoutInflater layoutInflater;
-    private int position;
+    private LayoutInflater mLayoutInflater;
 
     public CustomListAdapter(Context aContext, ArrayList<Roundtrip> roundtrip) {
         this.mRoundtrip = roundtrip;
-        layoutInflater = LayoutInflater.from(aContext);
+        mLayoutInflater = LayoutInflater.from(aContext);
     }
-
-    /*@Override
-    public int getCountTo() {
-        return flightTo.size();
-    }
-
-    public int getCountBack() {
-        return flightBack.size();
-    }
-
-    @Override
-    public Object getItemTo(int position) {
-        return flightTo.get(position);
-    }
-
-    public Object getItemBack(int position) {
-        return flightBack.get(position);
-    }*/
 
     @Override
     public int getCount() {
@@ -63,7 +44,7 @@ public class CustomListAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder holder;
         if (convertView == null) {
-            convertView = layoutInflater.inflate(R.layout.list_row_layout_grid, null);
+            convertView = mLayoutInflater.inflate(R.layout.list_row_layout_grid, null);
             holder = new ViewHolder();
             holder.OriginView = (TextView) convertView.findViewById(R.id.list_origin);
             holder.DestinationView = (TextView) convertView.findViewById(R.id.list_destination);

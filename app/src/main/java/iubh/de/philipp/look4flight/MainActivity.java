@@ -30,33 +30,33 @@ public class MainActivity extends AppCompatActivity {
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     //Alles zur Abflug/Zielflughafen
-    private MultiAutoCompleteTextView MultiAutoCompleteOrigin;
-    private MultiAutoCompleteTextView MultiAutoCompleteDestination;
+    private MultiAutoCompleteTextView mMultiAutoCompleteOrigin;
+    private MultiAutoCompleteTextView mMultiAutoCompleteDestination;
     //private MultiAutoCompleteTextView MultiAuto;
     private ArrayList<String> AirlineList = new ArrayList<String>();
 
     // Alles was zur Datumsauswahl gehört....
-    private EditText fromDateEditText;
-    private EditText toDateEditText;
-    private DatePickerDialog fromDatePickerDialog;
-    private DatePickerDialog toDatePickerDialog;
-    private SimpleDateFormat dateFormatter;
-    private SimpleDateFormat dateFormatterDB;
-    private View.OnClickListener OnClickListener = null;
+    private EditText mFromDateEditText;
+    private EditText mToDateEditText;
+    private DatePickerDialog mFromDatePickerDialog;
+    private DatePickerDialog mToDatePickerDialog;
+    private SimpleDateFormat mDateFormatter;
+    private SimpleDateFormat mDateFormatterDB;
+    private View.OnClickListener mOnClickListener = null;
 
     //Buttons
-    private Button search;
-    private Button gps;
+    private Button mSearch;
+    private Button mGps;
 
     //Location
-    private LocationManager locationManager;
-    private LocationListener locationListener;
+    private LocationManager mLocationManager;
+    private LocationListener mLocationListener;
 
     private Double mLatitude;
     private Double mLongtitude;
 
     //Sonstiges
-    private Context context;
+    private Context mContext;
 
     //Progress Dialog
     //private final ProgressDialog dialog = new ProgressDialog(MainActivity.this);
@@ -74,40 +74,40 @@ public class MainActivity extends AppCompatActivity {
         setDateTimeField();
 
         initializeAutoCompletion();
-        context = getApplicationContext();
-        dateFormatter = new SimpleDateFormat("dd.MM.yyyy", Locale.GERMANY);
-        dateFormatterDB = new SimpleDateFormat("yyyy-MM-dd");
+        mContext = getApplicationContext();
+        mDateFormatter = new SimpleDateFormat("dd.MM.yyyy", Locale.GERMANY);
+        mDateFormatterDB = new SimpleDateFormat("yyyy-MM-dd");
 
     }
 
 
     private void initializeOnClick() {
 
-        OnClickListener = new View.OnClickListener() {
+        mOnClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                String dateFrom = fromDateEditText.getText().toString();
-                String dateTo = toDateEditText.getText().toString();
-                String origin = MultiAutoCompleteOrigin.getText().toString();
-                String destination = MultiAutoCompleteDestination.getText().toString();
+                String dateFrom = mFromDateEditText.getText().toString();
+                String dateTo = mToDateEditText.getText().toString();
+                String origin = mMultiAutoCompleteOrigin.getText().toString();
+                String destination = mMultiAutoCompleteDestination.getText().toString();
 
 
-                if (view == fromDateEditText) {
-                    fromDatePickerDialog.show();
-                } else if (view == toDateEditText) {
-                    toDatePickerDialog.show();
-                } else if (view == gps) {
+                if (view == mFromDateEditText) {
+                    mFromDatePickerDialog.show();
+                } else if (view == mToDateEditText) {
+                    mToDatePickerDialog.show();
+                } else if (view == mGps) {
 
 /*                    getAirportByGPS();
 
                     locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0, locationListener);*/
 
 
-                } else if (view == search) {
+                } else if (view == mSearch) {
 
                     if (origin.isEmpty() || destination.isEmpty()) {
-                        Toast.makeText(context, "Bitte Flughäfen eingeben", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mContext, "Bitte Flughäfen eingeben", Toast.LENGTH_SHORT).show();
                         //Log.e(LOG_TAG, "Flughäfen nicht eingegeben");
                     } else {
 
@@ -117,11 +117,11 @@ public class MainActivity extends AppCompatActivity {
 
                         try {
                             if (!dateFrom.isEmpty()) {
-                                dateFrom = dateFormatterDB.format(dateFormatter.parse(dateFrom));
+                                dateFrom = mDateFormatterDB.format(mDateFormatter.parse(dateFrom));
                             }
 
                             if (!dateTo.isEmpty()) {
-                                dateTo = dateFormatterDB.format(dateFormatter.parse(dateTo));
+                                dateTo = mDateFormatterDB.format(mDateFormatter.parse(dateTo));
                             }
 
                         } catch (ParseException e) {
@@ -175,15 +175,15 @@ public class MainActivity extends AppCompatActivity {
         //Log.e("Array", Integer.toString(AirlineList.size()));
         //Log.e("Array", AirlineList.get(0));
 
-        MultiAutoCompleteDestination.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
-        MultiAutoCompleteOrigin.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
+        mMultiAutoCompleteDestination.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
+        mMultiAutoCompleteOrigin.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
 
         ArrayAdapter adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, AirlineList);
 
-        MultiAutoCompleteOrigin.setAdapter(adapter);
-        MultiAutoCompleteOrigin.setThreshold(2);
-        MultiAutoCompleteDestination.setAdapter(adapter);
-        MultiAutoCompleteDestination.setThreshold(2);
+        mMultiAutoCompleteOrigin.setAdapter(adapter);
+        mMultiAutoCompleteOrigin.setThreshold(2);
+        mMultiAutoCompleteDestination.setAdapter(adapter);
+        mMultiAutoCompleteDestination.setThreshold(2);
 
         //MultiAuto.setAdapter(adapter);
         //MultiAuto.setThreshold(2);
@@ -194,22 +194,22 @@ public class MainActivity extends AppCompatActivity {
 
     private void findViewsById() {
 
-        MultiAutoCompleteOrigin = (MultiAutoCompleteTextView) findViewById(R.id.etxt_autoComplete_origin);
-        MultiAutoCompleteDestination = (MultiAutoCompleteTextView) findViewById(R.id.etxt_autoComplete_destination);
+        mMultiAutoCompleteOrigin = (MultiAutoCompleteTextView) findViewById(R.id.etxt_autoComplete_origin);
+        mMultiAutoCompleteDestination = (MultiAutoCompleteTextView) findViewById(R.id.etxt_autoComplete_destination);
 
         //MultiAuto = (MultiAutoCompleteTextView) findViewById(R.id.multiAutoCompleteTextView);
 
-        fromDateEditText = (EditText) findViewById(R.id.etxt_fromdate);
-        fromDateEditText.setInputType(InputType.TYPE_NULL);
-        fromDateEditText.requestFocus();
+        mFromDateEditText = (EditText) findViewById(R.id.etxt_fromdate);
+        mFromDateEditText.setInputType(InputType.TYPE_NULL);
+        mFromDateEditText.requestFocus();
 
-        toDateEditText = (EditText) findViewById(R.id.etxt_todate);
-        toDateEditText.setInputType(InputType.TYPE_NULL);
+        mToDateEditText = (EditText) findViewById(R.id.etxt_todate);
+        mToDateEditText.setInputType(InputType.TYPE_NULL);
 
-        search = (Button) findViewById(R.id.start_search);
-        gps = (Button) findViewById(R.id.gps);
-        search.setOnClickListener(OnClickListener);
-        gps.setOnClickListener(OnClickListener);
+        mSearch = (Button) findViewById(R.id.start_search);
+        mGps = (Button) findViewById(R.id.gps);
+        mSearch.setOnClickListener(mOnClickListener);
+        mGps.setOnClickListener(mOnClickListener);
 
 
     }
@@ -218,30 +218,30 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void setDateTimeField() {
-        fromDateEditText.setOnClickListener(OnClickListener);
-        toDateEditText.setOnClickListener(OnClickListener);
+        mFromDateEditText.setOnClickListener(mOnClickListener);
+        mToDateEditText.setOnClickListener(mOnClickListener);
 
         Calendar newCalendar = Calendar.getInstance();
 
-        fromDatePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
+        mFromDatePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
 
             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                 Calendar newDate = Calendar.getInstance();
                 newDate.set(year, monthOfYear, dayOfMonth);
                 Log.e("FROM", Integer.toString(year) + "/" + Integer.toString(monthOfYear) + "/" + Integer.toString(dayOfMonth));
-                fromDateEditText.setText(dateFormatter.format(newDate.getTime()));
+                mFromDateEditText.setText(mDateFormatter.format(newDate.getTime()));
             }
 
         }, newCalendar.get(Calendar.YEAR), newCalendar.get(Calendar.MONTH), newCalendar.get(Calendar.DAY_OF_MONTH));
 
 
-        toDatePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
+        mToDatePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
 
             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                 Calendar newDate = Calendar.getInstance();
                 newDate.set(year, monthOfYear, dayOfMonth);
                 Log.e("TO ", Integer.toString(year) + "/" + Integer.toString(monthOfYear) + "/" + Integer.toString(dayOfMonth));
-                toDateEditText.setText(dateFormatter.format(newDate.getTime()));
+                mToDateEditText.setText(mDateFormatter.format(newDate.getTime()));
             }
 
         }, newCalendar.get(Calendar.YEAR), newCalendar.get(Calendar.MONTH), newCalendar.get(Calendar.DAY_OF_MONTH));

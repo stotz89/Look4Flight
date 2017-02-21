@@ -19,23 +19,23 @@ import java.util.List;
 public class FlightsActivity extends AppCompatActivity {
     private static final String LOG_TAG = FlightsActivity.class.getSimpleName();
 
-    private ListView itemListView;
+    private ListView mItemListView;
 
     private ArrayList<Flight> mFlightsTo = new ArrayList<Flight>();
     private ArrayList<Flight> mFlightsBack = new ArrayList<Flight>();
     private ArrayList<Roundtrip> mRoundtrip;
 
-    private List<String> originArray = new ArrayList<String>();
-    private List<String> destinationArray = new ArrayList<String>();
+    private List<String> mOriginArray = new ArrayList<String>();
+    private List<String> mDestinationArray = new ArrayList<String>();
 
-    private GetData jsonFlightTo;
-    private GetData jsonFlightBack;
+    private GetData mJsonFlightTo;
+    private GetData mJsonFlightBack;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_flights);
 
-        itemListView = (ListView)findViewById(R.id.custom_list);
+        mItemListView = (ListView)findViewById(R.id.custom_list);
 
         // Get values of old activity
         Intent oldactivity = getIntent();
@@ -48,32 +48,33 @@ public class FlightsActivity extends AppCompatActivity {
         String[] temp = origin.split(",");
         for(String s : temp) {
             if (s != null && s.length() >= 3) {
-                originArray.add(s.substring(0,3));
+                mOriginArray.add(s.substring(0,3));
             }
         }
 
         temp = destination.split(",");
         for(String s : temp) {
             if (s != null && s.length() >= 3) {
-                destinationArray.add(s.substring(0,3));
+                mDestinationArray.add(s.substring(0,3));
             }
         }
 
         //Loop über die Arrays um alle Kombinationen zu bekommen.
-        for(int iOrigin=0; iOrigin<originArray.size(); iOrigin++) {
+        for(int iOrigin=0; iOrigin<mOriginArray.size(); iOrigin++) {
 
-            for(int iDest=0; iDest<destinationArray.size(); iDest++) {
-                Log.e(LOG_TAG, "Origin: " + originArray.get(iOrigin));
-                Log.e(LOG_TAG, "Destination: " + destinationArray.get(iDest));
+            for(int iDest=0; iDest<mDestinationArray.size(); iDest++) {
+                Log.e(LOG_TAG, "Origin: " + mOriginArray.get(iOrigin));
+                Log.e(LOG_TAG, "Destination: " + mDestinationArray.get(iDest));
 
-                jsonFlightTo = new GetData(originArray.get(iOrigin), destinationArray.get(iDest), dateFrom);
-                jsonFlightBack = new GetData(destinationArray.get(iDest), originArray.get(iOrigin), dateTo);
+                mJsonFlightTo = new GetData(mOriginArray.get(iOrigin), mDestinationArray.get(iDest), dateFrom);
+                mJsonFlightBack = new GetData(mDestinationArray.get(iDest), mOriginArray.get(iOrigin), dateTo);
 
-                jsonFlightTo.startProcessing(FlightsActivity.this);
-                jsonFlightBack.startProcessing(FlightsActivity.this);
+                mJsonFlightTo.startProcessing(FlightsActivity.this);
+                mJsonFlightBack.startProcessing(FlightsActivity.this);
 
-                this.mFlightsTo.addAll(jsonFlightTo.getmFlights());
-                this.mFlightsBack.addAll(jsonFlightBack.getmFlights());
+                // Alle Flüge zwischenspeichern
+                this.mFlightsTo.addAll(mJsonFlightTo.getmFlights());
+                this.mFlightsBack.addAll(mJsonFlightBack.getmFlights());
 
             }
         }
@@ -96,15 +97,17 @@ public class FlightsActivity extends AppCompatActivity {
 
         }
 
+        // Flugkombi ausgeben
         for(Roundtrip singleRoundtrip: mRoundtrip) {
             Log.v(LOG_TAG, mRoundtrip.toString());
         }
 
-        itemListView.setAdapter(new CustomListAdapter(this, mRoundtrip));
-        itemListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        // Flugkombi auf den ItemListViewer setzen.
+        mItemListView.setAdapter(new CustomListAdapter(this, mRoundtrip));
+        mItemListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                Object o = itemListView.getItemAtPosition(position);
+                Object o = mItemListView.getItemAtPosition(position);
                 Roundtrip selectedFlight = (Roundtrip) o;
                 Log.e(LOG_TAG, selectedFlight.getmFlightTo().toString());
                 Log.e(LOG_TAG, selectedFlight.getmFlightBack().toString());
