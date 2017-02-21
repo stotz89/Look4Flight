@@ -45,8 +45,8 @@ public class MainActivity extends AppCompatActivity {
     private View.OnClickListener mOnClickListener = null;
 
     //Buttons
-    private Button mSearch;
-    private Button mGps;
+    private Button mBtnSearch;
+    private Button mBtnGps;
 
     //Location
     private LocationManager mLocationManager;
@@ -97,14 +97,14 @@ public class MainActivity extends AppCompatActivity {
                     mFromDatePickerDialog.show();
                 } else if (view == mToDateEditText) {
                     mToDatePickerDialog.show();
-                } else if (view == mGps) {
+                } else if (view == mBtnGps) {
 
 /*                    getAirportByGPS();
 
                     locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0, locationListener);*/
 
 
-                } else if (view == mSearch) {
+                } else if (view == mBtnSearch) {
 
                     if (origin.isEmpty() || destination.isEmpty()) {
                         Toast.makeText(mContext, "Bitte Flughäfen eingeben", Toast.LENGTH_SHORT).show();
@@ -206,10 +206,10 @@ public class MainActivity extends AppCompatActivity {
         mToDateEditText = (EditText) findViewById(R.id.etxt_todate);
         mToDateEditText.setInputType(InputType.TYPE_NULL);
 
-        mSearch = (Button) findViewById(R.id.start_search);
-        mGps = (Button) findViewById(R.id.gps);
-        mSearch.setOnClickListener(mOnClickListener);
-        mGps.setOnClickListener(mOnClickListener);
+        mBtnSearch = (Button) findViewById(R.id.start_search);
+        mBtnGps = (Button) findViewById(R.id.gps);
+        mBtnSearch.setOnClickListener(mOnClickListener);
+        mBtnGps.setOnClickListener(mOnClickListener);
 
 
     }

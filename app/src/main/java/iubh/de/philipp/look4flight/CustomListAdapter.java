@@ -16,6 +16,7 @@ import java.util.ArrayList;
 
 public class CustomListAdapter extends BaseAdapter {
 
+    private static final String LOG_TAG = CustomListAdapter.class.getSimpleName();
     private ArrayList<Roundtrip> mRoundtrip;
     private LayoutInflater mLayoutInflater;
 

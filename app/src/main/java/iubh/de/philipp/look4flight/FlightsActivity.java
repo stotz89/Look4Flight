@@ -21,6 +21,11 @@ public class FlightsActivity extends AppCompatActivity {
     private static final String LOG_TAG = FlightsActivity.class.getSimpleName();
 
     private ListView mItemListView;
+    private String mDateFrom;
+    private String mDateTo;
+    private String mOrigin;
+    private String mDestination;
+
 
     private ArrayList<Flight> mFlightsTo = new ArrayList<Flight>();
     private ArrayList<Flight> mFlightsBack = new ArrayList<Flight>();
@@ -37,6 +42,7 @@ public class FlightsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_flights);
 
         mItemListView = (ListView)findViewById(R.id.custom_list);
+        mRoundtrip = new ArrayList<Roundtrip>();
 
         ProgressDialog progressDialog = new ProgressDialog(FlightsActivity.this);
         //Progressdialog starten.
@@ -44,63 +50,32 @@ public class FlightsActivity extends AppCompatActivity {
 
         // Get values of old activity
         Intent oldactivity = getIntent();
-        String origin = oldactivity.getExtras().getString("origin");
-        String destination = oldactivity.getExtras().getString("destination");
-        String dateFrom = oldactivity.getExtras().getString("dateFrom");
-        String dateTo = oldactivity.getExtras().getString("dateTo");
+        mOrigin = oldactivity.getExtras().getString("origin");
+        mDestination = oldactivity.getExtras().getString("destination");
+        mDateFrom = oldactivity.getExtras().getString("dateFrom");
+        mDateTo = oldactivity.getExtras().getString("dateTo");
 
         //Split destination and origin into an srtring array in case of a multi entry
-        String[] temp = origin.split(",");
+        String[] temp = mOrigin.split(",");
         for(String s : temp) {
             if (s != null && s.length() >= 3) {
                 mOriginArray.add(s.substring(0,3));
             }
         }
 
-        temp = destination.split(",");
+        temp = mDestination.split(",");
         for(String s : temp) {
             if (s != null && s.length() >= 3) {
                 mDestinationArray.add(s.substring(0,3));
             }
         }
 
-        //Loop über die Arrays um alle Kombinationen zu bekommen.
-        for(int iOrigin=0; iOrigin<mOriginArray.size(); iOrigin++) {
-
-            for(int iDest=0; iDest<mDestinationArray.size(); iDest++) {
-                Log.e(LOG_TAG, "Origin: " + mOriginArray.get(iOrigin));
-                Log.e(LOG_TAG, "Destination: " + mDestinationArray.get(iDest));
-
-                mJsonFlightTo = new GetData(mOriginArray.get(iOrigin), mDestinationArray.get(iDest), dateFrom);
-                mJsonFlightBack = new GetData(mDestinationArray.get(iDest), mOriginArray.get(iOrigin), dateTo);
-
-                mJsonFlightTo.startProcessing();
-                mJsonFlightBack.startProcessing();
-
-                // Alle Flüge zwischenspeichern
-                this.mFlightsTo.addAll(mJsonFlightTo.getmFlights());
-                this.mFlightsBack.addAll(mJsonFlightBack.getmFlights());
-
-            }
-        }
-
-        mRoundtrip = new ArrayList<Roundtrip>();
+        // Hole alle Hin- und Rückflüge
+        getAllFlights();
 
         // Loop über jeden Hinflug
-        for(int iHin=0; iHin<mFlightsTo.size(); iHin++) {
+        getAllFlightCombinations();
 
-            Flight tempFlightTo = mFlightsTo.get(iHin);
-            // Jeden Hinflug mit allen Rückflügen kombinieren.
-            for(int iRue=0; iRue<mFlightsBack.size(); iRue++) {
-                Flight tempFlightBack = mFlightsBack.get(iRue);
-
-                Roundtrip RoundtripObject = new Roundtrip(tempFlightTo, tempFlightBack);
-
-                this.mRoundtrip.add(RoundtripObject);
-
-            }
-
-        }
 
         // Flugkombi ausgeben
         for(Roundtrip singleRoundtrip: mRoundtrip) {
@@ -121,6 +96,49 @@ public class FlightsActivity extends AppCompatActivity {
                 Log.e(LOG_TAG, selectedFlight.getmFlightBack().toString());
             }
         });
+
+    }
+
+    private void getAllFlights() {
+
+        //Loop über die Arrays um alle Kombinationen zu bekommen.
+        for(int iOrigin=0; iOrigin<mOriginArray.size(); iOrigin++) {
+
+            for(int iDest=0; iDest<mDestinationArray.size(); iDest++) {
+                Log.e(LOG_TAG, "Origin: " + mOriginArray.get(iOrigin));
+                Log.e(LOG_TAG, "Destination: " + mDestinationArray.get(iDest));
+
+                mJsonFlightTo = new GetData(mOriginArray.get(iOrigin), mDestinationArray.get(iDest), mDateFrom);
+                mJsonFlightBack = new GetData(mDestinationArray.get(iDest), mOriginArray.get(iOrigin), mDateTo);
+
+                mJsonFlightTo.startProcessing();
+                mJsonFlightBack.startProcessing();
+
+                // Alle Flüge zwischenspeichern
+                this.mFlightsTo.addAll(mJsonFlightTo.getmFlights());
+                this.mFlightsBack.addAll(mJsonFlightBack.getmFlights());
+
+            }
+        }
+
+    }
+
+    private void getAllFlightCombinations() {
+
+        for(int iHin=0; iHin<mFlightsTo.size(); iHin++) {
+
+            Flight tempFlightTo = mFlightsTo.get(iHin);
+            // Jeden Hinflug mit allen Rückflügen kombinieren.
+            for(int iRue=0; iRue<mFlightsBack.size(); iRue++) {
+                Flight tempFlightBack = mFlightsBack.get(iRue);
+
+                Roundtrip RoundtripObject = new Roundtrip(tempFlightTo, tempFlightBack);
+
+                this.mRoundtrip.add(RoundtripObject);
+
+            }
+
+        }
 
     }
 

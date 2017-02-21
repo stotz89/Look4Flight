@@ -6,6 +6,7 @@ package iubh.de.philipp.look4flight;
 
 public class Roundtrip {
 
+    private static final String LOG_TAG = Roundtrip.class.getSimpleName();
     private Flight mFlightTo;
     private Flight mFlightBack;
 
