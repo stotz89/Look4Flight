@@ -1,7 +1,5 @@
 package iubh.de.philipp.look4flight;
 
-import android.app.Activity;
-import android.app.ProgressDialog;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -76,24 +74,24 @@ public class GetData {
 
     }
 
-    public boolean startProcessing(Activity activity) {
-        ProgressDialog progressDialog = new ProgressDialog(activity);
+    public boolean startProcessing() {
+
         getDataFromFlightDB flightData = new getDataFromFlightDB();
         String jsonResponse = null;
 
         try {
-            progressDialog.show();
+
             jsonResponse = flightData.execute(mDestinationURI.toString()).get();
         } catch (InterruptedException e) {
             mDownloadStatus = DownloadStatus.FAILED_OR_EMPTY;
-            progressDialog.dismiss();
+
             e.printStackTrace();
         } catch (ExecutionException e) {
             mDownloadStatus = DownloadStatus.FAILED_OR_EMPTY;
-            progressDialog.dismiss();
+
             e.printStackTrace();
         }
-        progressDialog.dismiss();
+
 
         // parse response into Array.
         if (!jsonResponse.isEmpty()) {

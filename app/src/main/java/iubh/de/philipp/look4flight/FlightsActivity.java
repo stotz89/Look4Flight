@@ -1,5 +1,6 @@
 package iubh.de.philipp.look4flight;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -37,6 +38,10 @@ public class FlightsActivity extends AppCompatActivity {
 
         mItemListView = (ListView)findViewById(R.id.custom_list);
 
+        ProgressDialog progressDialog = new ProgressDialog(FlightsActivity.this);
+        //Progressdialog starten.
+        progressDialog.show();
+
         // Get values of old activity
         Intent oldactivity = getIntent();
         String origin = oldactivity.getExtras().getString("origin");
@@ -69,8 +74,8 @@ public class FlightsActivity extends AppCompatActivity {
                 mJsonFlightTo = new GetData(mOriginArray.get(iOrigin), mDestinationArray.get(iDest), dateFrom);
                 mJsonFlightBack = new GetData(mDestinationArray.get(iDest), mOriginArray.get(iOrigin), dateTo);
 
-                mJsonFlightTo.startProcessing(FlightsActivity.this);
-                mJsonFlightBack.startProcessing(FlightsActivity.this);
+                mJsonFlightTo.startProcessing();
+                mJsonFlightBack.startProcessing();
 
                 // Alle Flüge zwischenspeichern
                 this.mFlightsTo.addAll(mJsonFlightTo.getmFlights());
@@ -101,6 +106,9 @@ public class FlightsActivity extends AppCompatActivity {
         for(Roundtrip singleRoundtrip: mRoundtrip) {
             Log.v(LOG_TAG, mRoundtrip.toString());
         }
+
+        //Progressdialog schließen.
+        progressDialog.dismiss();
 
         // Flugkombi auf den ItemListViewer setzen.
         mItemListView.setAdapter(new CustomListAdapter(this, mRoundtrip));
