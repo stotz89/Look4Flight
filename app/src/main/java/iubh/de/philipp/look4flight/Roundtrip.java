@@ -7,27 +7,29 @@ package iubh.de.philipp.look4flight;
 public class Roundtrip {
 
     private static final String LOG_TAG = Roundtrip.class.getSimpleName();
-    private Flight mFlightTo;
-    private Flight mFlightBack;
+    private MultiStopFlight mMultiStopFlightTo;
+    private MultiStopFlight mMultiStopFlightBack;
 
-    public Roundtrip(Flight mFlightTo, Flight mFlightBack) {
-        this.mFlightTo = mFlightTo;
-        this.mFlightBack = mFlightBack;
+
+    public Roundtrip(MultiStopFlight flightTo) {
+        this.mMultiStopFlightTo = flightTo;
+
     }
 
-    public Flight getmFlightTo() {
-        return mFlightTo;
+    public Roundtrip(MultiStopFlight multiStopFlightTo, MultiStopFlight multiStopFlightBack) {
+
+        this.mMultiStopFlightTo = multiStopFlightTo;
+        this.mMultiStopFlightBack = multiStopFlightBack;
+
     }
 
-    public Flight getmFlightBack() {
-        return mFlightBack;
+    public MultiStopFlight getmMultiStopFlightBack() {
+        return mMultiStopFlightBack;
     }
 
-    @Override
-    public String toString() {
-        return "Roundtrip{" +
-                "mFlightTo=" + mFlightTo.toString() +
-                ", mFlightBack=" + mFlightBack.toString() +
-                '}';
+    public MultiStopFlight getmMultiStopFlightTo() {
+        return mMultiStopFlightTo;
     }
+
+
 }

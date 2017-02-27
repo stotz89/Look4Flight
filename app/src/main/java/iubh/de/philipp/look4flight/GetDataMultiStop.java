@@ -18,76 +18,106 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 /**
- * Created by philipp on 27.01.17.
+ * Created by philipp on 27.02.17.
  */
 
-enum ConvertingStatus { IDLE, PROCESSING, INITIALISED, FAILED_OR_EMPTY, OK}
-enum DownloadStatus { IDLE, PROCESSING, INITIALISED, FAILED_OR_EMPTY, OK}
+enum ConvertingStatusMulti { IDLE, PROCESSING, INITIALISED, FAILED_OR_EMPTY, OK}
+enum DownloadStatusMulti { IDLE, PROCESSING, INITIALISED, FAILED_OR_EMPTY, OK}
 
-public class GetData {
+public class GetDataMultiStop {
 
     private static final String LOG_TAG = GetData.class.getSimpleName();
-    private Uri mDestinationURI;
-    private ArrayList<MultiStopFlight> mFlights;
-    private ConvertingStatus mConvertingStatus;
-    private DownloadStatus mDownloadStatus;
+    private Uri mDestinationUriFrom;
+    private Uri mDestinationUriTo;
+    private ArrayList<Flight> mFlightsFrom;
+    private ArrayList<Flight> mFlightsTo;
+    private ArrayList<MultiStopFlight> mMultiStopFlights;
+    private ConvertingStatusMulti mConvertingStatus;
+    private DownloadStatusMulti mDownloadStatus;
 
 
 
-    public GetData(String depature, String destination, String date) {
+    public GetDataMultiStop(String depature, String destination, String date) {
 
-        mDownloadStatus = DownloadStatus.IDLE;
-        mConvertingStatus = ConvertingStatus.IDLE;
-        createURI(depature, destination, date);
-        mFlights = new ArrayList<MultiStopFlight>();
+        mDownloadStatus = DownloadStatusMulti.IDLE;
+        mConvertingStatus = ConvertingStatusMulti.IDLE;
+        createUriFrom(depature, date);
+        createUriTo(destination, date);
+        mMultiStopFlights = new ArrayList<MultiStopFlight>();
+        mFlightsFrom = new ArrayList<Flight>();
+        mFlightsTo = new ArrayList<Flight>();
 
 
     }
 
     public void reset() {
 
-        mDownloadStatus = DownloadStatus.IDLE;
-        mConvertingStatus = ConvertingStatus.IDLE;
-        mFlights.clear();
-        mDestinationURI = null;
+        mDownloadStatus = DownloadStatusMulti.IDLE;
+        mConvertingStatus = ConvertingStatusMulti.IDLE;
+        mMultiStopFlights.clear();
+        mFlightsFrom.clear();
+        mFlightsTo.clear();
+        mDestinationUriTo = null;
+        mDestinationUriFrom = null;
 
     }
 
-    public boolean createURI(String depature, String destination, String date) {
+    public boolean createUriFrom(String depature, String date) {
 
         //URI erzeugen
 
-        final String FLIGHT_BASE_URL = "http://192.168.3.12/Look4Flight/searchflight_nonstop_by_date.php";
+        final String FLIGHT_BASE_URL = "http://192.168.3.12/Look4Flight/searchflight_1stop_from.php";
         final String IATA_FROM_PARAM = "iata_from";
-        final String IATA_TO_PARAM = "iata_to";
         final String DATE_PARAM = "date";
 
-        mDestinationURI = Uri.parse(FLIGHT_BASE_URL).buildUpon()
+        mDestinationUriFrom = Uri.parse(FLIGHT_BASE_URL).buildUpon()
                 .appendQueryParameter(IATA_FROM_PARAM, depature)
-                .appendQueryParameter(IATA_TO_PARAM, destination)
                 .appendQueryParameter(DATE_PARAM, date)
                 .build();
 
-        Log.e(LOG_TAG, mDestinationURI.toString());
+        Log.e(LOG_TAG, mDestinationUriFrom.toString());
 
-        return mDestinationURI != null;
+        return mDestinationUriFrom != null;
+
+    }
+
+    public boolean createUriTo(String arrival, String date) {
+
+        //URI erzeugen
+
+        final String FLIGHT_BASE_URL = "http://192.168.3.12/Look4Flight/searchflight_1stop_to.php";
+        final String IATA_FROM_PARAM = "iata_to";
+        final String DATE_PARAM = "date";
+
+        mDestinationUriTo = Uri.parse(FLIGHT_BASE_URL).buildUpon()
+                .appendQueryParameter(IATA_FROM_PARAM, arrival)
+                .appendQueryParameter(DATE_PARAM, date)
+                .build();
+
+        Log.e(LOG_TAG, mDestinationUriTo.toString());
+
+        return mDestinationUriTo != null;
 
     }
 
     public boolean startProcessing() {
 
-        getDataFromFlightDB flightData = new getDataFromFlightDB();
-        String jsonResponse = null;
+        getDataFromFlightDB flightDataFrom = new getDataFromFlightDB();
+        getDataFromFlightDB flightDataTo = new getDataFromFlightDB();
+        String jsonResponseFrom = null;
+        String jsonResponseTo = null;
 
         try {
 
-            jsonResponse = flightData.execute(mDestinationURI.toString()).get();
+            jsonResponseFrom = flightDataFrom.execute(mDestinationUriFrom.toString()).get();
+            jsonResponseTo = flightDataTo.execute(mDestinationUriTo.toString()).get();
+
         } catch (InterruptedException e) {
-            mDownloadStatus = DownloadStatus.FAILED_OR_EMPTY;
+            mDownloadStatus = DownloadStatusMulti.FAILED_OR_EMPTY;
 
             e.printStackTrace();
         } catch (ExecutionException e) {
-            mDownloadStatus = DownloadStatus.FAILED_OR_EMPTY;
+            mDownloadStatus = DownloadStatusMulti.FAILED_OR_EMPTY;
 
             e.printStackTrace();
         }
@@ -96,23 +126,56 @@ public class GetData {
         // parse response into Array.
         // Initiale Response = { "flights": null }
         //if (!jsonResponse.isEmpty()) {
-        if (jsonResponse.length() > 30 ) {
-            mDownloadStatus = DownloadStatus.OK;
-            parseJsonIntoArray(jsonResponse);
-            return true;
+        if (jsonResponseFrom.length() > 30 && jsonResponseTo.length() > 30) {
+            mDownloadStatus = DownloadStatusMulti.OK;
+            parseJsonIntoArray(jsonResponseFrom, mFlightsFrom);
+            parseJsonIntoArray(jsonResponseTo, mFlightsTo);
+
         } else {
-            mDownloadStatus = DownloadStatus.FAILED_OR_EMPTY;
+            mDownloadStatus = DownloadStatusMulti.FAILED_OR_EMPTY;
             return false;
         }
+
+        // Flüge miteinander kombinieren.
+        return createMultiStopFlights();
+
+    }
+
+    public boolean createMultiStopFlights() {
+
+        // Loop über alle "ersten" Flüge. Anschließend loop über die "zweiten" Flüge.
+        // Hier muss darauf geachtet werden, dass Destination des ersten Fluges und
+        // Origin des zweiten Fluges, sowie Abflugszeit des zweiten Fluges größer gleich
+        // Ankunftszeit des ersten Fluges ist.
+        for(int iErster=0; iErster<mFlightsFrom.size(); iErster++) {
+
+            for(int iZweiter=0; iZweiter<mFlightsTo.size(); iZweiter++) {
+
+                //Informationen zu den Flügen holen.
+                Flight FlightFrom = mFlightsFrom.get(iErster);
+                Flight FlightTo = mFlightsTo.get(iZweiter);
+
+                //Check auf Destination und Origin
+                if (FlightFrom.getmIataTo().equals(FlightTo.getmIataFrom())) { //&&
+                        //(FlightFrom.getmArrTime() <= FlightTo.getmDepTime() )   ) {
+                    MultiStopFlight tempMultiStopFlight = new MultiStopFlight();
+                    tempMultiStopFlight.addFlight(FlightFrom);
+                    tempMultiStopFlight.addFlight(FlightTo);
+                    mMultiStopFlights.add(tempMultiStopFlight);
+                }
+            }
+        }
+
+        return (!mMultiStopFlights.isEmpty());
 
     }
 
 
-    public void parseJsonIntoArray(String jsonResponse) {
-        mConvertingStatus = ConvertingStatus.PROCESSING;
-        if(mDownloadStatus != DownloadStatus.OK) {
+    public void parseJsonIntoArray(String jsonResponse, ArrayList<Flight> array) {
+        mConvertingStatus = ConvertingStatusMulti.PROCESSING;
+        if(mDownloadStatus != DownloadStatusMulti.OK) {
             Log.e(LOG_TAG, "Error downloading raw file");
-            mConvertingStatus = ConvertingStatus.FAILED_OR_EMPTY;
+            mConvertingStatus = ConvertingStatusMulti.FAILED_OR_EMPTY;
             return;
         }
         final String FLIGHTS = "flights";
@@ -156,37 +219,35 @@ public class GetData {
                     String arr_time = jsonFlight.getString(FLIGHT_ARR_TIME);
 
                     Flight FlightObject = new Flight(id, no, date, price_e, price_b, price_f, curr, iata_from, city_from, iata_to, city_to, duration, dep_time, arr_time);
-                    MultiStopFlight tempMulti = new MultiStopFlight();
-                    tempMulti.addFlight(FlightObject);
 
-                    this.mFlights.add(tempMulti);
+                    array.add(FlightObject);
                 }
 
-                for (MultiStopFlight singleFlight : mFlights) {
+                for (Flight singleFlight : array) {
                     Log.v(LOG_TAG, singleFlight.toString());
                 }
 
             } catch (JSONException jsone) {
                 jsone.printStackTrace();
                 Log.e(LOG_TAG, "Error processing Json data");
-                mConvertingStatus = ConvertingStatus.FAILED_OR_EMPTY;
+                mConvertingStatus = ConvertingStatusMulti.FAILED_OR_EMPTY;
             }
 
-            this.mConvertingStatus = ConvertingStatus.OK;
+            this.mConvertingStatus = ConvertingStatusMulti.OK;
 
         }
 
     }
 
-    public ArrayList<MultiStopFlight> getmFlights() {
-        return mFlights;
+    public ArrayList<MultiStopFlight> getmMultiStopFlights() {
+        return mMultiStopFlights;
     }
 
-    public ConvertingStatus getmConvertingStatus() {
+    public ConvertingStatusMulti getmConvertingStatusMulti() {
         return mConvertingStatus;
     }
 
-    public DownloadStatus getmDownloadStatus() {
+    public DownloadStatusMulti getmDownloadStatusMulti() {
         return mDownloadStatus;
     }
 
@@ -200,7 +261,7 @@ public class GetData {
 
         @Override
         protected String doInBackground(String... params) {
-            mDownloadStatus = DownloadStatus.PROCESSING;
+            mDownloadStatus = DownloadStatusMulti.PROCESSING;
 
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
@@ -253,7 +314,7 @@ public class GetData {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            mDownloadStatus = DownloadStatus.INITIALISED;
+            mDownloadStatus = DownloadStatusMulti.INITIALISED;
         }
     }
 

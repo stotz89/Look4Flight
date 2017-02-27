@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.MultiAutoCompleteTextView;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -43,6 +44,10 @@ public class MainActivity extends AppCompatActivity {
     private SimpleDateFormat mDateFormatter;
     private SimpleDateFormat mDateFormatterDB;
     private View.OnClickListener mOnClickListener = null;
+
+    //Sonstiges
+    private Switch mSwRoundtrip;
+    private Switch mSwNonStop;
 
     //Buttons
     private Button mBtnSearch;
@@ -108,20 +113,24 @@ public class MainActivity extends AppCompatActivity {
 
                     if (origin.isEmpty() || destination.isEmpty()) {
                         Toast.makeText(mContext, "Bitte Flughäfen eingeben", Toast.LENGTH_SHORT).show();
+                        return;
                         //Log.e(LOG_TAG, "Flughäfen nicht eingegeben");
                     } else {
-
-                        // Get Values of field input
-                        /*origin = origin.substring(0, 3);
-                        destination = destination.substring(0, 3);*/
 
                         try {
                             if (!dateFrom.isEmpty()) {
                                 dateFrom = mDateFormatterDB.format(mDateFormatter.parse(dateFrom));
+                            } else {
+                                Toast.makeText(mContext, "Bitte Abflugdatum eingeben", Toast.LENGTH_SHORT).show();
+                                return;
                             }
 
                             if (!dateTo.isEmpty()) {
                                 dateTo = mDateFormatterDB.format(mDateFormatter.parse(dateTo));
+                                if ( dateTo.compareTo(dateFrom) < 0 ) {
+                                    Toast.makeText(mContext, "Bitte Rückflugdatum größer dem Hinflugdatum wählen.", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
                             }
 
                         } catch (ParseException e) {
@@ -129,11 +138,14 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         // Pass value to new activity
+
                         Intent flightActivity = new Intent(MainActivity.this, FlightsActivity.class);
                         flightActivity.putExtra("origin", origin);
                         flightActivity.putExtra("destination", destination);
                         flightActivity.putExtra("dateFrom", dateFrom);
                         flightActivity.putExtra("dateTo", dateTo);
+                        flightActivity.putExtra("Roundtrip", mSwRoundtrip.isChecked());
+                        flightActivity.putExtra("NonStop", mSwNonStop.isChecked());
 
                         startActivity(flightActivity);
                     }
@@ -211,6 +223,8 @@ public class MainActivity extends AppCompatActivity {
         mBtnSearch.setOnClickListener(mOnClickListener);
         mBtnGps.setOnClickListener(mOnClickListener);
 
+        mSwNonStop = (Switch) findViewById(R.id.nonstop);
+        mSwRoundtrip = (Switch) findViewById(R.id.roundtrip);
 
     }
 

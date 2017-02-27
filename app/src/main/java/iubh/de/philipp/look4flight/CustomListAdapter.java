@@ -19,9 +19,11 @@ public class CustomListAdapter extends BaseAdapter {
     private static final String LOG_TAG = CustomListAdapter.class.getSimpleName();
     private ArrayList<Roundtrip> mRoundtrip;
     private LayoutInflater mLayoutInflater;
+    private boolean mRoundtripBool;
 
-    public CustomListAdapter(Context aContext, ArrayList<Roundtrip> roundtrip) {
+    public CustomListAdapter(Context aContext, ArrayList<Roundtrip> roundtrip, boolean roundtripBool) {
         this.mRoundtrip = roundtrip;
+        this.mRoundtripBool = roundtripBool;
         mLayoutInflater = LayoutInflater.from(aContext);
     }
 
@@ -43,6 +45,9 @@ public class CustomListAdapter extends BaseAdapter {
     }
 
     public View getView(int position, View convertView, ViewGroup parent) {
+        long priceTo = 0;
+        long priceBack = 0;
+
         ViewHolder holder;
         if (convertView == null) {
             convertView = mLayoutInflater.inflate(R.layout.list_row_layout_grid, null);
@@ -66,22 +71,40 @@ public class CustomListAdapter extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        holder.OriginView.setText(mRoundtrip.get(position).getmFlightTo().getmCityFrom());
-        holder.DestinationView.setText(mRoundtrip.get(position).getmFlightTo().getmCityTo());
-        holder.DateView.setText(mRoundtrip.get(position).getmFlightTo().getmDate());
-        holder.DepTimeView.setText(mRoundtrip.get(position).getmFlightTo().getmDepTime());
-        holder.ArrTimeView.setText(mRoundtrip.get(position).getmFlightTo().getmArrTime());
+        //Loop über Array der MultiFlights (beinhaltet sowohl NonStop als auch MultiStop Flüge)
+        for (int iHin = 0; iHin < mRoundtrip.get(position).getmMultiStopFlightTo().getmMultiStopFlight().size(); iHin++) {
+            //Origin und DepTime werden nur beim ersten Durchgang gesetzt.
+            if (iHin == 0) {
+                holder.OriginView.setText(mRoundtrip.get(position).getmMultiStopFlightTo().getmMultiStopFlight().get(iHin).getmCityFrom());
+                holder.DepTimeView.setText(mRoundtrip.get(position).getmMultiStopFlightTo().getmMultiStopFlight().get(iHin).getmDepTime());
+            }
+
+            // Diese Daten werden von dem eventuellen zweiten Flug überschrieben
+            holder.DestinationView.setText(mRoundtrip.get(position).getmMultiStopFlightTo().getmMultiStopFlight().get(iHin).getmCityTo());
+            holder.DateView.setText(mRoundtrip.get(position).getmMultiStopFlightTo().getmMultiStopFlight().get(iHin).getmDate());
+            holder.ArrTimeView.setText(mRoundtrip.get(position).getmMultiStopFlightTo().getmMultiStopFlight().get(iHin).getmArrTime());
+            priceTo += mRoundtrip.get(position).getmMultiStopFlightTo().getmMultiStopFlight().get(iHin).getmPriceE();
+        }
 
 
-        //Log .e("Price", "Preis: " + Long.toString(listData.get(position).getmPriceE()));
+        if (mRoundtripBool) {
+            for (int iRueck = 0; iRueck < mRoundtrip.get(position).getmMultiStopFlightBack().getmMultiStopFlight().size(); iRueck++) {
+                if (iRueck == 0) {
+                    holder.OriginViewBack.setText(mRoundtrip.get(position).getmMultiStopFlightBack().getmMultiStopFlight().get(iRueck).getmCityFrom());
+                    holder.DepTimeViewBack.setText(mRoundtrip.get(position).getmMultiStopFlightBack().getmMultiStopFlight().get(iRueck).getmDepTime());
+                }
 
-        holder.OriginViewBack.setText(mRoundtrip.get(position).getmFlightBack().getmCityFrom());
-        holder.DestinationViewBack.setText(mRoundtrip.get(position).getmFlightBack().getmCityTo());
-        holder.DateViewBack.setText(mRoundtrip.get(position).getmFlightBack().getmDate());
-        holder.DepTimeViewBack.setText(mRoundtrip.get(position).getmFlightBack().getmDepTime());
-        holder.ArrTimeViewBack.setText(mRoundtrip.get(position).getmFlightBack().getmArrTime());
+                holder.DestinationViewBack.setText(mRoundtrip.get(position).getmMultiStopFlightBack().getmMultiStopFlight().get(iRueck).getmCityTo());
+                holder.DateViewBack.setText(mRoundtrip.get(position).getmMultiStopFlightBack().getmMultiStopFlight().get(iRueck).getmDate());
+                holder.ArrTimeViewBack.setText(mRoundtrip.get(position).getmMultiStopFlightBack().getmMultiStopFlight().get(iRueck).getmArrTime());
+                priceBack += mRoundtrip.get(position).getmMultiStopFlightBack().getmMultiStopFlight().get(iRueck).getmPriceE();
+            }
 
-        holder.Price.setText(Long.toString(mRoundtrip.get(position).getmFlightTo().getmPriceE() + mRoundtrip.get(position).getmFlightBack().getmPriceE()));
+            holder.Price.setText(Long.toString(priceTo + priceBack));
+        } else {
+            holder.Price.setText(Long.toString(priceTo));
+        }
+
         return convertView;
     }
 
