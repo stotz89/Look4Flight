@@ -47,6 +47,7 @@ public class CustomListAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         long priceTo = 0;
         long priceBack = 0;
+        String Stops = null;
 
         ViewHolder holder;
         if (convertView == null) {
@@ -58,6 +59,7 @@ public class CustomListAdapter extends BaseAdapter {
             holder.DepTimeView = (TextView) convertView.findViewById(R.id.list_dep_time);
             holder.ArrTimeView = (TextView) convertView.findViewById(R.id.list_arr_time);
             holder.Price = (TextView) convertView.findViewById(R.id.list_price);
+            holder.StopsTo = (TextView) convertView.findViewById(R.id.list_stops_to);
 
             //holder = new ViewHolder();
             holder.OriginViewBack = (TextView) convertView.findViewById(R.id.list_origin_2);
@@ -65,6 +67,7 @@ public class CustomListAdapter extends BaseAdapter {
             holder.DateViewBack = (TextView) convertView.findViewById(R.id.list_date_from_2);
             holder.DepTimeViewBack = (TextView) convertView.findViewById(R.id.list_dep_time_2);
             holder.ArrTimeViewBack = (TextView) convertView.findViewById(R.id.list_arr_time_2);
+            holder.StopsBack = (TextView) convertView.findViewById(R.id.list_stops_back);
 
             convertView.setTag(holder);
         } else {
@@ -74,6 +77,7 @@ public class CustomListAdapter extends BaseAdapter {
         //Loop über Array der MultiFlights (beinhaltet sowohl NonStop als auch MultiStop Flüge)
         for (int iHin = 0; iHin < mRoundtrip.get(position).getmTripTo().getmMultiStopFlight().size(); iHin++) {
             //Origin und DepTime werden nur beim ersten Durchgang gesetzt.
+
             if (iHin == 0) {
                 holder.OriginView.setText(mRoundtrip.get(position).getmTripTo().getmMultiStopFlight().get(iHin).getmCityFrom());
                 holder.DepTimeView.setText(mRoundtrip.get(position).getmTripTo().getmMultiStopFlight().get(iHin).getmDepTime());
@@ -83,6 +87,7 @@ public class CustomListAdapter extends BaseAdapter {
             holder.DestinationView.setText(mRoundtrip.get(position).getmTripTo().getmMultiStopFlight().get(iHin).getmCityTo());
             holder.DateView.setText(mRoundtrip.get(position).getmTripTo().getmMultiStopFlight().get(iHin).getmDate());
             holder.ArrTimeView.setText(mRoundtrip.get(position).getmTripTo().getmMultiStopFlight().get(iHin).getmArrTime());
+            holder.StopsTo.setText(Integer.toString(iHin));
             priceTo += mRoundtrip.get(position).getmTripTo().getmMultiStopFlight().get(iHin).getmPriceE();
         }
 
@@ -97,6 +102,7 @@ public class CustomListAdapter extends BaseAdapter {
                 holder.DestinationViewBack.setText(mRoundtrip.get(position).getmTripBack().getmMultiStopFlight().get(iRueck).getmCityTo());
                 holder.DateViewBack.setText(mRoundtrip.get(position).getmTripBack().getmMultiStopFlight().get(iRueck).getmDate());
                 holder.ArrTimeViewBack.setText(mRoundtrip.get(position).getmTripBack().getmMultiStopFlight().get(iRueck).getmArrTime());
+                holder.StopsBack.setText(Integer.toString(iRueck));
                 priceBack += mRoundtrip.get(position).getmTripBack().getmMultiStopFlight().get(iRueck).getmPriceE();
             }
 
@@ -115,12 +121,14 @@ public class CustomListAdapter extends BaseAdapter {
         TextView DepTimeView;
         TextView ArrTimeView;
         TextView Price;
+        TextView StopsTo;
 
         TextView OriginViewBack;
         TextView DestinationViewBack;
         TextView DateViewBack;
         TextView DepTimeViewBack;
         TextView ArrTimeViewBack;
+        TextView StopsBack;
 
     }
 
