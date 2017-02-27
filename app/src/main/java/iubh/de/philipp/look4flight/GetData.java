@@ -28,7 +28,7 @@ public class GetData {
 
     private static final String LOG_TAG = GetData.class.getSimpleName();
     private Uri mDestinationURI;
-    private ArrayList<MultiStopFlight> mFlights;
+    private ArrayList<Trip> mFlights;
     private ConvertingStatus mConvertingStatus;
     private DownloadStatus mDownloadStatus;
 
@@ -39,7 +39,7 @@ public class GetData {
         mDownloadStatus = DownloadStatus.IDLE;
         mConvertingStatus = ConvertingStatus.IDLE;
         createURI(depature, destination, date);
-        mFlights = new ArrayList<MultiStopFlight>();
+        mFlights = new ArrayList<Trip>();
 
 
     }
@@ -156,13 +156,13 @@ public class GetData {
                     String arr_time = jsonFlight.getString(FLIGHT_ARR_TIME);
 
                     Flight FlightObject = new Flight(id, no, date, price_e, price_b, price_f, curr, iata_from, city_from, iata_to, city_to, duration, dep_time, arr_time);
-                    MultiStopFlight tempMulti = new MultiStopFlight();
+                    Trip tempMulti = new Trip();
                     tempMulti.addFlight(FlightObject);
 
                     this.mFlights.add(tempMulti);
                 }
 
-                for (MultiStopFlight singleFlight : mFlights) {
+                for (Trip singleFlight : mFlights) {
                     Log.v(LOG_TAG, singleFlight.toString());
                 }
 
@@ -178,7 +178,7 @@ public class GetData {
 
     }
 
-    public ArrayList<MultiStopFlight> getmFlights() {
+    public ArrayList<Trip> getmFlights() {
         return mFlights;
     }
 

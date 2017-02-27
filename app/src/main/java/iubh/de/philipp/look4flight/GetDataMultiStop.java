@@ -31,7 +31,7 @@ public class GetDataMultiStop {
     private Uri mDestinationUriTo;
     private ArrayList<Flight> mFlightsFrom;
     private ArrayList<Flight> mFlightsTo;
-    private ArrayList<MultiStopFlight> mMultiStopFlights;
+    private ArrayList<Trip> mTrips;
     private ConvertingStatusMulti mConvertingStatus;
     private DownloadStatusMulti mDownloadStatus;
 
@@ -43,7 +43,7 @@ public class GetDataMultiStop {
         mConvertingStatus = ConvertingStatusMulti.IDLE;
         createUriFrom(depature, date);
         createUriTo(destination, date);
-        mMultiStopFlights = new ArrayList<MultiStopFlight>();
+        mTrips = new ArrayList<Trip>();
         mFlightsFrom = new ArrayList<Flight>();
         mFlightsTo = new ArrayList<Flight>();
 
@@ -54,7 +54,7 @@ public class GetDataMultiStop {
 
         mDownloadStatus = DownloadStatusMulti.IDLE;
         mConvertingStatus = ConvertingStatusMulti.IDLE;
-        mMultiStopFlights.clear();
+        mTrips.clear();
         mFlightsFrom.clear();
         mFlightsTo.clear();
         mDestinationUriTo = null;
@@ -158,15 +158,15 @@ public class GetDataMultiStop {
                 //Check auf Destination und Origin
                 if (FlightFrom.getmIataTo().equals(FlightTo.getmIataFrom())) { //&&
                         //(FlightFrom.getmArrTime() <= FlightTo.getmDepTime() )   ) {
-                    MultiStopFlight tempMultiStopFlight = new MultiStopFlight();
-                    tempMultiStopFlight.addFlight(FlightFrom);
-                    tempMultiStopFlight.addFlight(FlightTo);
-                    mMultiStopFlights.add(tempMultiStopFlight);
+                    Trip tempTrip = new Trip();
+                    tempTrip.addFlight(FlightFrom);
+                    tempTrip.addFlight(FlightTo);
+                    mTrips.add(tempTrip);
                 }
             }
         }
 
-        return (!mMultiStopFlights.isEmpty());
+        return (!mTrips.isEmpty());
 
     }
 
@@ -239,8 +239,8 @@ public class GetDataMultiStop {
 
     }
 
-    public ArrayList<MultiStopFlight> getmMultiStopFlights() {
-        return mMultiStopFlights;
+    public ArrayList<Trip> getmTrips() {
+        return mTrips;
     }
 
     public ConvertingStatusMulti getmConvertingStatusMulti() {

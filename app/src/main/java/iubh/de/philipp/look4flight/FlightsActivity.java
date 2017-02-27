@@ -30,8 +30,8 @@ public class FlightsActivity extends AppCompatActivity {
     private boolean mSwRoundtrip;
 
 
-    private ArrayList<MultiStopFlight> mFlightsTo = new ArrayList<MultiStopFlight>();
-    private ArrayList<MultiStopFlight> mFlightsBack = new ArrayList<MultiStopFlight>();
+    private ArrayList<Trip> mFlightsTo = new ArrayList<Trip>();
+    private ArrayList<Trip> mFlightsBack = new ArrayList<Trip>();
     private ArrayList<Roundtrip> mRoundtrip;
 
     private List<String> mOriginArray = new ArrayList<String>();
@@ -110,9 +110,9 @@ public class FlightsActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 Object o = mItemListView.getItemAtPosition(position);
                 Roundtrip selectedFlight = (Roundtrip) o;
-                Log.e(LOG_TAG, selectedFlight.getmMultiStopFlightTo().toString());
+                Log.e(LOG_TAG, selectedFlight.getmTripTo().toString());
                 if (mSwRoundtrip) {
-                    Log.e(LOG_TAG, selectedFlight.getmMultiStopFlightBack().toString());
+                    Log.e(LOG_TAG, selectedFlight.getmTripBack().toString());
                 }
 
             }
@@ -165,7 +165,7 @@ public class FlightsActivity extends AppCompatActivity {
 
                 mMultiStopFlightTo = new GetDataMultiStop(mOriginArray.get(iOrigin), mDestinationArray.get(iDest), mDateFrom);
                 if (mMultiStopFlightTo.startProcessing()) {
-                    this.mFlightsTo.addAll(mMultiStopFlightTo.getmMultiStopFlights());
+                    this.mFlightsTo.addAll(mMultiStopFlightTo.getmTrips());
 
                 } else {
                     // Keine Flüge gefunden --> return false
@@ -176,7 +176,7 @@ public class FlightsActivity extends AppCompatActivity {
                     mMultiStopFlightBack = new GetDataMultiStop(mDestinationArray.get(iDest), mOriginArray.get(iOrigin), mDateTo);
 
                     if (mMultiStopFlightBack.startProcessing()) {
-                        this.mFlightsBack.addAll(mMultiStopFlightBack.getmMultiStopFlights());
+                        this.mFlightsBack.addAll(mMultiStopFlightBack.getmTrips());
                     } else {
                         // Keine Flüge gefunden --> return false
                         return false;
@@ -192,11 +192,11 @@ public class FlightsActivity extends AppCompatActivity {
         // Alle Non-Stop-Hinflüge
         for (int iHin = 0; iHin < mFlightsTo.size(); iHin++) {
 
-            MultiStopFlight tempFlightTo = mFlightsTo.get(iHin);
+            Trip tempFlightTo = mFlightsTo.get(iHin);
             // Jeden Hinflug mit allen Rückflügen kombinieren falls erwünscht.
             if (mSwRoundtrip) {
                 for (int iRue = 0; iRue < mFlightsBack.size(); iRue++) {
-                    MultiStopFlight tempFlightBack = mFlightsBack.get(iRue);
+                    Trip tempFlightBack = mFlightsBack.get(iRue);
 
                     Roundtrip RoundtripObject = new Roundtrip(tempFlightTo, tempFlightBack);
 
@@ -215,12 +215,12 @@ public class FlightsActivity extends AppCompatActivity {
         // Alle Multi-Stop Hinflüge
         /*for (int iHin = 0; iHin < mMuiltiStopFlightsToArray.size(); iHin++) {
 
-            MultiStopFlight tempMultiFlightTo = mMuiltiStopFlightsToArray.get(iHin);
+            Trip tempMultiFlightTo = mMuiltiStopFlightsToArray.get(iHin);
             // Jeden Hinflug mit allen Rückflügen kombinieren falls erwünscht.
             if (mSwRoundtrip) {
                 // Mit allen Non-Stop Flügen
                 for (int iRue = 0; iRue < mFlightsBack.size(); iRue++) {
-                    MultiStopFlight tempFlightBack = mFlightsBack.get(iRue);
+                    Trip tempFlightBack = mFlightsBack.get(iRue);
 
                     Roundtrip RoundtripObject = new Roundtrip(tempMultiFlightTo, tempFlightBack);
 
@@ -229,7 +229,7 @@ public class FlightsActivity extends AppCompatActivity {
                 }
                 // Mit allen Multi-Stop Flügen
                 for (int iRue = 0; iRue < mMuiltiStopFlightsBackArray.size(); iRue++) {
-                    MultiStopFlight tempMultiFlightBack = mMuiltiStopFlightsBackArray.get(iRue);
+                    Trip tempMultiFlightBack = mMuiltiStopFlightsBackArray.get(iRue);
 
                     Roundtrip RoundtripObject = new Roundtrip(tempMultiFlightTo, tempMultiFlightBack);
 

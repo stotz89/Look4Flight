@@ -6,12 +6,12 @@ import java.util.ArrayList;
  * Created by philipp on 27.02.17.
  */
 
-public class MultiStopFlight {
-    private static final String LOG_TAG = MultiStopFlight.class.getSimpleName();
+public class Trip {
+    private static final String LOG_TAG = Trip.class.getSimpleName();
 
     private ArrayList<Flight> mMultiStopFlight;
 
-    public MultiStopFlight() {
+    public Trip() {
 
         mMultiStopFlight = new ArrayList<Flight>();
 
