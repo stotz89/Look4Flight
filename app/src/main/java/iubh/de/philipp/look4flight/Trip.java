@@ -7,7 +7,6 @@ import java.util.ArrayList;
  */
 
 public class Trip {
-    private static final String LOG_TAG = Trip.class.getSimpleName();
 
     private ArrayList<Flight> mMultiStopFlight;
 
