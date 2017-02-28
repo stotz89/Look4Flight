@@ -16,7 +16,6 @@ import java.util.ArrayList;
 
 public class CustomListAdapter extends BaseAdapter {
 
-    private static final String LOG_TAG = CustomListAdapter.class.getSimpleName();
     private ArrayList<Roundtrip> mRoundtrip;
     private LayoutInflater mLayoutInflater;
     private boolean mRoundtripBool;
@@ -49,7 +48,6 @@ public class CustomListAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         long priceTo = 0;
         long priceBack = 0;
-        String Stops = null;
 
         ViewHolder holder;
         if (convertView == null) {
@@ -116,7 +114,7 @@ public class CustomListAdapter extends BaseAdapter {
         return convertView;
     }
 
-    static class ViewHolder {
+    private static class ViewHolder {
         TextView OriginView;
         TextView DestinationView;
         TextView DateView;

@@ -24,11 +24,7 @@ public class FlightsActivity extends AppCompatActivity {
     private ListView mItemListView;
     private String mDateFrom;
     private String mDateTo;
-    private String mOrigin;
-    private String mDestination;
-    private boolean mSwNonStop;
     private boolean mSwRoundtrip;
-    private int mPersons;
 
 
     private ArrayList<Trip> mFlightsTo = new ArrayList<Trip>();
@@ -37,12 +33,6 @@ public class FlightsActivity extends AppCompatActivity {
 
     private List<String> mOriginArray = new ArrayList<String>();
     private List<String> mDestinationArray = new ArrayList<String>();
-
-    private GetData mJsonFlightTo;
-    private GetData mJsonFlightBack;
-
-    private GetDataMultiStop mMultiStopFlightTo;
-    private GetDataMultiStop mMultiStopFlightBack;
 
 
     @Override
@@ -59,23 +49,23 @@ public class FlightsActivity extends AppCompatActivity {
 
         // Get values of old activity
         Intent oldactivity = getIntent();
-        mOrigin = oldactivity.getExtras().getString("origin");
-        mDestination = oldactivity.getExtras().getString("destination");
+        String origin = oldactivity.getExtras().getString("origin");
+        String destination = oldactivity.getExtras().getString("destination");
         mDateFrom = oldactivity.getExtras().getString("dateFrom");
         mDateTo = oldactivity.getExtras().getString("dateTo");
-        mSwNonStop = oldactivity.getExtras().getBoolean("NonStop");
+        boolean swNonStop = oldactivity.getExtras().getBoolean("NonStop");
         mSwRoundtrip = oldactivity.getExtras().getBoolean("Roundtrip");
-        mPersons = Integer.parseInt(oldactivity.getExtras().getString("Persons"));
+        int persons = Integer.parseInt(oldactivity.getExtras().getString("Persons"));
 
         //Abflug und Ziel in Array speichern (Im Falle von Multiangaben)
-        String[] temp = mOrigin.split(",");
+        String[] temp = origin.split(",");
         for (String s : temp) {
             if (s != null && s.length() >= 3) {
                 mOriginArray.add(s.substring(0, 3));
             }
         }
 
-        temp = mDestination.split(",");
+        temp = destination.split(",");
         for (String s : temp) {
             if (s != null && s.length() >= 3) {
                 mDestinationArray.add(s.substring(0, 3));
@@ -86,7 +76,7 @@ public class FlightsActivity extends AppCompatActivity {
         getAllNonStopFlights();
 
         // Nur wenn gewünscht, auch Multi Stop selektieren
-        if (!mSwNonStop) {
+        if (!swNonStop) {
             getAllFlightsWithStops();
         }
 
@@ -111,7 +101,7 @@ public class FlightsActivity extends AppCompatActivity {
 
 
         // Flugkombi auf den ItemListViewer setzen.
-        mItemListView.setAdapter(new CustomListAdapter(this, mRoundtrip, mSwRoundtrip, mPersons));
+        mItemListView.setAdapter(new CustomListAdapter(this, mRoundtrip, mSwRoundtrip, persons));
         mItemListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
@@ -136,9 +126,9 @@ public class FlightsActivity extends AppCompatActivity {
                 Log.e(LOG_TAG, "Origin: " + mOriginArray.get(iOrigin));
                 Log.e(LOG_TAG, "Destination: " + mDestinationArray.get(iDest));
 
-                mJsonFlightTo = new GetData(mOriginArray.get(iOrigin), mDestinationArray.get(iDest), mDateFrom);
-                if (mJsonFlightTo.startProcessing()) {
-                    this.mFlightsTo.addAll(mJsonFlightTo.getmFlights());
+                GetData jsonFlightTo = new GetData(mOriginArray.get(iOrigin), mDestinationArray.get(iDest), mDateFrom);
+                if (jsonFlightTo.startProcessing()) {
+                    this.mFlightsTo.addAll(jsonFlightTo.getmFlights());
 
                 } else {
                     // Keine Flüge gefunden --> return false
@@ -146,10 +136,10 @@ public class FlightsActivity extends AppCompatActivity {
                 }
 
                 if (mSwRoundtrip) {
-                    mJsonFlightBack = new GetData(mDestinationArray.get(iDest), mOriginArray.get(iOrigin), mDateTo);
+                    GetData jsonFlightBack = new GetData(mDestinationArray.get(iDest), mOriginArray.get(iOrigin), mDateTo);
 
-                    if (mJsonFlightBack.startProcessing()) {
-                        this.mFlightsBack.addAll(mJsonFlightBack.getmFlights());
+                    if (jsonFlightBack.startProcessing()) {
+                        this.mFlightsBack.addAll(jsonFlightBack.getmFlights());
                     } else {
                         // Keine Flüge gefunden --> return false
                         return false;
@@ -170,9 +160,9 @@ public class FlightsActivity extends AppCompatActivity {
                 Log.e(LOG_TAG, "Origin: " + mOriginArray.get(iOrigin));
                 Log.e(LOG_TAG, "Destination: " + mDestinationArray.get(iDest));
 
-                mMultiStopFlightTo = new GetDataMultiStop(mOriginArray.get(iOrigin), mDestinationArray.get(iDest), mDateFrom);
-                if (mMultiStopFlightTo.startProcessing()) {
-                    this.mFlightsTo.addAll(mMultiStopFlightTo.getmTrips());
+                GetDataMultiStop multiStopFlightTo = new GetDataMultiStop(mOriginArray.get(iOrigin), mDestinationArray.get(iDest), mDateFrom);
+                if (multiStopFlightTo.startProcessing()) {
+                    this.mFlightsTo.addAll(multiStopFlightTo.getmTrips());
 
                 } else {
                     // Keine Flüge gefunden --> return false
@@ -180,10 +170,10 @@ public class FlightsActivity extends AppCompatActivity {
                 }
 
                 if (mSwRoundtrip) {
-                    mMultiStopFlightBack = new GetDataMultiStop(mDestinationArray.get(iDest), mOriginArray.get(iOrigin), mDateTo);
+                    GetDataMultiStop multiStopFlightBack = new GetDataMultiStop(mDestinationArray.get(iDest), mOriginArray.get(iOrigin), mDateTo);
 
-                    if (mMultiStopFlightBack.startProcessing()) {
-                        this.mFlightsBack.addAll(mMultiStopFlightBack.getmTrips());
+                    if (multiStopFlightBack.startProcessing()) {
+                        this.mFlightsBack.addAll(multiStopFlightBack.getmTrips());
                     } else {
                         // Keine Flüge gefunden --> return false
                         return false;
