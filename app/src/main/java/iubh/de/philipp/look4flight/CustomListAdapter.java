@@ -20,10 +20,12 @@ public class CustomListAdapter extends BaseAdapter {
     private ArrayList<Roundtrip> mRoundtrip;
     private LayoutInflater mLayoutInflater;
     private boolean mRoundtripBool;
+    private int mPersons;
 
-    public CustomListAdapter(Context aContext, ArrayList<Roundtrip> roundtrip, boolean roundtripBool) {
+    public CustomListAdapter(Context aContext, ArrayList<Roundtrip> roundtrip, boolean roundtripBool, int persons) {
         this.mRoundtrip = roundtrip;
         this.mRoundtripBool = roundtripBool;
+        this.mPersons = persons;
         mLayoutInflater = LayoutInflater.from(aContext);
     }
 
@@ -106,9 +108,9 @@ public class CustomListAdapter extends BaseAdapter {
                 priceBack += mRoundtrip.get(position).getmTripBack().getmMultiStopFlight().get(iRueck).getmPriceE();
             }
 
-            holder.Price.setText(Long.toString(priceTo + priceBack));
+            holder.Price.setText(Long.toString( (priceTo + priceBack ) * mPersons ));
         } else {
-            holder.Price.setText(Long.toString(priceTo));
+            holder.Price.setText(Long.toString(priceTo * mPersons));
         }
 
         return convertView;

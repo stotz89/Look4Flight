@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.MultiAutoCompleteTextView;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -48,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     //Sonstiges
     private Switch mSwRoundtrip;
     private Switch mSwNonStop;
+    private Spinner mPersons;
 
     //Buttons
     private Button mBtnSearch;
@@ -79,9 +81,22 @@ public class MainActivity extends AppCompatActivity {
         setDateTimeField();
 
         initializeAutoCompletion();
+        initializeSpinner();
         mContext = getApplicationContext();
         mDateFormatter = new SimpleDateFormat("dd.MM.yyyy", Locale.GERMANY);
         mDateFormatterDB = new SimpleDateFormat("yyyy-MM-dd");
+
+    }
+
+    private void initializeSpinner() {
+
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.zaehler, android.R.layout.simple_spinner_item);
+
+        // Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        mPersons.setAdapter(adapter);
 
     }
 
@@ -146,6 +161,7 @@ public class MainActivity extends AppCompatActivity {
                         flightActivity.putExtra("dateTo", dateTo);
                         flightActivity.putExtra("Roundtrip", mSwRoundtrip.isChecked());
                         flightActivity.putExtra("NonStop", mSwNonStop.isChecked());
+                        flightActivity.putExtra("Persons", mPersons.getSelectedItem().toString());
 
                         startActivity(flightActivity);
                     }
@@ -225,6 +241,8 @@ public class MainActivity extends AppCompatActivity {
 
         mSwNonStop = (Switch) findViewById(R.id.nonstop);
         mSwRoundtrip = (Switch) findViewById(R.id.roundtrip);
+
+        mPersons = (Spinner) findViewById(R.id.persons);
 
     }
 

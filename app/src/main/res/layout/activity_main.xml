@@ -51,6 +51,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/etxt_todate"
         android:layout_marginTop="70dp"
+        android:textStyle="bold"
+        android:textSize="14sp"
         android:id="@+id/roundtrip" />
 
     <Switch
@@ -59,7 +61,32 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/roundtrip"
         android:layout_marginTop="20dp"
+        android:textStyle="bold"
+        android:textSize="14sp"
         android:id="@+id/nonstop" />
+
+
+    <TextView
+        android:text="Anzahl Personen"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/nonstop"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="25dp"
+        android:textStyle="bold"
+        android:textSize="14sp"
+        android:id="@+id/label_persons" />
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/nonstop"
+        android:layout_toRightOf="@id/label_persons"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="25dp"
+        android:layout_marginLeft="120dp"
+        android:id="@+id/persons" />
+
 
     <Button
         android:text="GPS"
@@ -70,8 +97,6 @@
         android:layout_marginStart="50dp"
         android:layout_marginTop="19dp"
         android:id="@+id/gps" />
-
-
 
 
 </RelativeLayout>

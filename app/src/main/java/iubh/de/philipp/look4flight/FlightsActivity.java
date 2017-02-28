@@ -28,6 +28,7 @@ public class FlightsActivity extends AppCompatActivity {
     private String mDestination;
     private boolean mSwNonStop;
     private boolean mSwRoundtrip;
+    private int mPersons;
 
 
     private ArrayList<Trip> mFlightsTo = new ArrayList<Trip>();
@@ -64,6 +65,7 @@ public class FlightsActivity extends AppCompatActivity {
         mDateTo = oldactivity.getExtras().getString("dateTo");
         mSwNonStop = oldactivity.getExtras().getBoolean("NonStop");
         mSwRoundtrip = oldactivity.getExtras().getBoolean("Roundtrip");
+        mPersons = Integer.parseInt(oldactivity.getExtras().getString("Persons"));
 
         //Abflug und Ziel in Array speichern (Im Falle von Multiangaben)
         String[] temp = mOrigin.split(",");
@@ -81,9 +83,14 @@ public class FlightsActivity extends AppCompatActivity {
         }
 
         // Hole alle Hin- und Rückflüge (non-stop)
-        boolean nonstopflights = getAllNonStopFlights();
-        boolean multistopflights = getAllFlightsWithStops();
-        if (nonstopflights || multistopflights) {
+        getAllNonStopFlights();
+
+        // Nur wenn gewünscht, auch Multi Stop selektieren
+        if (!mSwNonStop) {
+            getAllFlightsWithStops();
+        }
+
+        if (!mFlightsTo.isEmpty()) {
 
             // Loop über jeden Hinflug
             getAllFlightCombinations();
@@ -104,7 +111,7 @@ public class FlightsActivity extends AppCompatActivity {
 
 
         // Flugkombi auf den ItemListViewer setzen.
-        mItemListView.setAdapter(new CustomListAdapter(this, mRoundtrip, mSwRoundtrip));
+        mItemListView.setAdapter(new CustomListAdapter(this, mRoundtrip, mSwRoundtrip, mPersons));
         mItemListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
