@@ -27,7 +27,8 @@ public class Trip {
     @Override
     public String toString() {
         // Needs to be implemented
-        String response = null;
+        String response = "";
+
 
         for (int i = 0; i < mTrips.size(); i++) {
             if (response.isEmpty()) {
@@ -38,5 +39,6 @@ public class Trip {
         }
 
         return response;
+
     }
 }
