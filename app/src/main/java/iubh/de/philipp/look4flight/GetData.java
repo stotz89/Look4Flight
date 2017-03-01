@@ -1,19 +1,12 @@
 package iubh.de.philipp.look4flight;
 
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
@@ -21,36 +14,22 @@ import java.util.concurrent.ExecutionException;
  * Created by philipp on 27.01.17.
  */
 
-enum ConvertingStatus { IDLE, PROCESSING, INITIALISED, FAILED_OR_EMPTY, OK}
-enum DownloadStatus { IDLE, PROCESSING, INITIALISED, FAILED_OR_EMPTY, OK}
 
 public class GetData {
 
     private static final String LOG_TAG = GetData.class.getSimpleName();
     private Uri mDestinationURI;
-    private ArrayList<Trip> mFlights;
-    private ConvertingStatus mConvertingStatus;
-    private DownloadStatus mDownloadStatus;
-
-
+    private ArrayList<Trip> mTrips;
 
     public GetData(String depature, String destination, String date) {
 
-        mDownloadStatus = DownloadStatus.IDLE;
-        mConvertingStatus = ConvertingStatus.IDLE;
         createURI(depature, destination, date);
-        mFlights = new ArrayList<Trip>();
-
-
+        mTrips = new ArrayList<Trip>();
     }
 
     public void reset() {
-
-        mDownloadStatus = DownloadStatus.IDLE;
-        mConvertingStatus = ConvertingStatus.IDLE;
-        mFlights.clear();
+        mTrips.clear();
         mDestinationURI = null;
-
     }
 
     public boolean createURI(String depature, String destination, String date) {
@@ -76,18 +55,18 @@ public class GetData {
 
     public boolean startProcessing() {
 
-        getDataFromFlightDB flightData = new getDataFromFlightDB();
+        DBConnection flightData = new DBConnection();
         String jsonResponse = null;
 
         try {
 
             jsonResponse = flightData.execute(mDestinationURI.toString()).get();
         } catch (InterruptedException e) {
-            mDownloadStatus = DownloadStatus.FAILED_OR_EMPTY;
+            //Download failed
 
             e.printStackTrace();
         } catch (ExecutionException e) {
-            mDownloadStatus = DownloadStatus.FAILED_OR_EMPTY;
+            //Download failed
 
             e.printStackTrace();
         }
@@ -97,11 +76,11 @@ public class GetData {
         // Initiale Response = { "flights": null }
         //if (!jsonResponse.isEmpty()) {
         if (jsonResponse.length() > 30 ) {
-            mDownloadStatus = DownloadStatus.OK;
+            //Download OK
             parseJsonIntoArray(jsonResponse);
             return true;
         } else {
-            mDownloadStatus = DownloadStatus.FAILED_OR_EMPTY;
+            //Download failed
             return false;
         }
 
@@ -109,12 +88,7 @@ public class GetData {
 
 
     public void parseJsonIntoArray(String jsonResponse) {
-        mConvertingStatus = ConvertingStatus.PROCESSING;
-        if(mDownloadStatus != DownloadStatus.OK) {
-            Log.e(LOG_TAG, "Error downloading raw file");
-            mConvertingStatus = ConvertingStatus.FAILED_OR_EMPTY;
-            return;
-        }
+
         final String FLIGHTS = "flights";
         final String FLIGHT_ID = "id";
         final String FLIGHT_NO = "no";
@@ -159,102 +133,25 @@ public class GetData {
                     Trip tempMulti = new Trip();
                     tempMulti.addFlight(FlightObject);
 
-                    this.mFlights.add(tempMulti);
+                    this.mTrips.add(tempMulti);
                 }
 
-                for (Trip singleFlight : mFlights) {
+                for (Trip singleFlight : mTrips) {
                     Log.v(LOG_TAG, singleFlight.toString());
                 }
 
             } catch (JSONException jsone) {
                 jsone.printStackTrace();
                 Log.e(LOG_TAG, "Error processing Json data");
-                mConvertingStatus = ConvertingStatus.FAILED_OR_EMPTY;
             }
 
-            this.mConvertingStatus = ConvertingStatus.OK;
-
         }
 
     }
 
-    public ArrayList<Trip> getmFlights() {
-        return mFlights;
+    public ArrayList<Trip> getmTrips() {
+        return mTrips;
     }
 
-    public ConvertingStatus getmConvertingStatus() {
-        return mConvertingStatus;
-    }
-
-    public DownloadStatus getmDownloadStatus() {
-        return mDownloadStatus;
-    }
-
-    public class getDataFromFlightDB extends AsyncTask<String, Void, String> {
-
-
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-        }
-
-        @Override
-        protected String doInBackground(String... params) {
-            mDownloadStatus = DownloadStatus.PROCESSING;
-
-            HttpURLConnection urlConnection = null;
-            BufferedReader reader = null;
-
-            if(params == null)
-                return null;
-
-            try {
-                URL url = new URL(params[0]);
-
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-
-                InputStream inputStream = urlConnection.getInputStream();
-                if(inputStream == null) {
-                    return null;
-                }
-
-                StringBuffer buffer = new StringBuffer();
-
-                reader = new BufferedReader(new InputStreamReader(inputStream));
-
-                String line;
-                while((line = reader.readLine()) != null) {
-                    buffer.append(line + "\n");
-                }
-
-                //Response of HTTP-Call is now in the buffer
-                return buffer.toString();
-
-
-            } catch(IOException e) {
-                Log.e(LOG_TAG, "Error", e);
-                return null;
-            } finally {
-                if(urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-                if(reader != null) {
-                    try {
-                        reader.close();
-                    } catch(final IOException e) {
-                        Log.e(LOG_TAG,"Error closing stream", e);
-                    }
-                }
-            }
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            mDownloadStatus = DownloadStatus.INITIALISED;
-        }
-    }
 
 }

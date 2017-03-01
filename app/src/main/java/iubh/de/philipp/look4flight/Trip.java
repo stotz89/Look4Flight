@@ -8,20 +8,20 @@ import java.util.ArrayList;
 
 public class Trip {
 
-    private ArrayList<Flight> mMultiStopFlight;
+    private ArrayList<Flight> mTrips;
 
     public Trip() {
 
-        mMultiStopFlight = new ArrayList<Flight>();
+        mTrips = new ArrayList<Flight>();
 
     }
 
     public void addFlight(Flight flight) {
-        mMultiStopFlight.add(flight);
+        mTrips.add(flight);
     }
 
-    public ArrayList<Flight> getmMultiStopFlight() {
-        return mMultiStopFlight;
+    public ArrayList<Flight> getmTrips() {
+        return mTrips;
     }
 
     @Override
@@ -29,10 +29,12 @@ public class Trip {
         // Needs to be implemented
         String response = null;
 
-        for (int i = 0; i < mMultiStopFlight.size(); i++) {
-
-            response = response + "Flight: " + Integer.toString(i) + mMultiStopFlight.get(i).toString();
-
+        for (int i = 0; i < mTrips.size(); i++) {
+            if (response.isEmpty()) {
+                response = "Flight: " + Integer.toString(i) + mTrips.get(i).toString();
+            } else {
+                response = response + "Flight: " + Integer.toString(i) + mTrips.get(i).toString();
+            }
         }
 
         return response;

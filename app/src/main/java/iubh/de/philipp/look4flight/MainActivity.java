@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private MultiAutoCompleteTextView mMultiAutoCompleteOrigin;
     private MultiAutoCompleteTextView mMultiAutoCompleteDestination;
     //private MultiAutoCompleteTextView MultiAuto;
-    private ArrayList<String> AirlineList = new ArrayList<String>();
+    private ArrayList<String> mAirlineList = new ArrayList<String>();
 
     // Alles was zur Datumsauswahl gehört....
     private EditText mFromDateEditText;
@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
         findViewsById();
         setDateTimeField();
 
-        initializeAutoCompletion();
+        initializeMultiAutoCompletion();
         initializeSpinner();
         mContext = getApplicationContext();
         mDateFormatter = new SimpleDateFormat("dd.MM.yyyy", Locale.GERMANY);
@@ -173,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void initializeAutoCompletion() {
+    private void initializeMultiAutoCompletion() {
 
         int index = 0;
 
@@ -192,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
                 String airlineCity = airlines.get("CITY");
                 String airlineCountry = airlines.get("COUNTRY");
 
-                AirlineList.add(index, airlineIATA + " / " + airlineName + " / " + airlineCity);
+                mAirlineList.add(index, airlineIATA + " / " + airlineName + " / " + airlineCity);
                 index++;
             }
 
@@ -200,13 +200,13 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        //Log.e("Array", Integer.toString(AirlineList.size()));
-        //Log.e("Array", AirlineList.get(0));
+        //Log.e("Array", Integer.toString(mAirlineList.size()));
+        //Log.e("Array", mAirlineList.get(0));
 
         mMultiAutoCompleteDestination.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
         mMultiAutoCompleteOrigin.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
 
-        ArrayAdapter adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, AirlineList);
+        ArrayAdapter adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, mAirlineList);
 
         mMultiAutoCompleteOrigin.setAdapter(adapter);
         mMultiAutoCompleteOrigin.setThreshold(2);

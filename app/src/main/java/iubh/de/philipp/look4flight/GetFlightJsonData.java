@@ -22,7 +22,7 @@ package iubh.de.philipp.look4flight;
 
     }
 
-    public ArrayList<Flight> getmFlights() {
+    public ArrayList<Flight> getmTrips() {
         for(Flight singleFlight: mFlights) {
             Log.v(LOG_TAG + "_GET", singleFlight.toString());
         }
