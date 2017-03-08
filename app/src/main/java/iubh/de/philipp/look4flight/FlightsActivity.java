@@ -58,16 +58,20 @@ public class FlightsActivity extends AppCompatActivity {
         int persons = Integer.parseInt(oldactivity.getExtras().getString("Persons"));
 
         //Abflug und Ziel in Array speichern (Im Falle von Multiangaben)
-        String[] temp = origin.split(",");
+        String[] temp = origin.split(", ");
         for (String s : temp) {
             if (s != null && s.length() >= 3) {
+                //s.replaceAll("\\s","");
+                String temp2 = s;
+                temp2.trim();
                 mOriginArray.add(s.substring(0, 3));
             }
         }
 
-        temp = destination.split(",");
+        temp = destination.split(", ");
         for (String s : temp) {
             if (s != null && s.length() >= 3) {
+                s.replaceAll("\\s+", "");
                 mDestinationArray.add(s.substring(0, 3));
             }
         }
