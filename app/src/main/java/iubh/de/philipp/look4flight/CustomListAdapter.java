@@ -106,9 +106,9 @@ public class CustomListAdapter extends BaseAdapter {
                 priceBack += mRoundtrip.get(position).getmTripBack().getmTrips().get(iRueck).getmPriceE();
             }
 
-            holder.Price.setText(Long.toString( (priceTo + priceBack ) * mPersons ));
+            holder.Price.setText(Long.toString( (priceTo + priceBack ) * mPersons ) + " €");
         } else {
-            holder.Price.setText(Long.toString(priceTo * mPersons));
+            holder.Price.setText(Long.toString(priceTo * mPersons) + " €");
         }
 
         return convertView;
