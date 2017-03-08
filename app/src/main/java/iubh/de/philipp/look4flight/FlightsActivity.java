@@ -61,9 +61,6 @@ public class FlightsActivity extends AppCompatActivity {
         String[] temp = origin.split(", ");
         for (String s : temp) {
             if (s != null && s.length() >= 3) {
-                //s.replaceAll("\\s","");
-                String temp2 = s;
-                temp2.trim();
                 mOriginArray.add(s.substring(0, 3));
             }
         }
@@ -71,7 +68,6 @@ public class FlightsActivity extends AppCompatActivity {
         temp = destination.split(", ");
         for (String s : temp) {
             if (s != null && s.length() >= 3) {
-                s.replaceAll("\\s+", "");
                 mDestinationArray.add(s.substring(0, 3));
             }
         }
