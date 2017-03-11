@@ -1,8 +1,12 @@
 package iubh.de.philipp.look4flight;
 
+import android.Manifest;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Criteria;
+import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -26,7 +30,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
+
+import static iubh.de.philipp.look4flight.R.raw.airports;
 
 public class MainActivity extends AppCompatActivity {
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
@@ -64,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
 
     //Sonstiges
     private Context mContext;
+    private String mProvider;
 
     //Progress Dialog
     //private final ProgressDialog dialog = new ProgressDialog(MainActivity.this);
@@ -85,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
         mContext = getApplicationContext();
         mDateFormatter = new SimpleDateFormat("dd.MM.yyyy", Locale.GERMANY);
         mDateFormatterDB = new SimpleDateFormat("yyyy-MM-dd");
+        //mLocationManager = getSystemService(LocationManager.class);
 
     }
 
@@ -119,9 +128,9 @@ public class MainActivity extends AppCompatActivity {
                     mToDatePickerDialog.show();
                 } else if (view == mBtnGps) {
 
-/*                    getAirportByGPS();
+                    getAirportByGPS();
 
-                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0, locationListener);*/
+                    //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0, locationListener);
 
 
                 } else if (view == mBtnSearch) {
@@ -142,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
 
                             if (!dateTo.isEmpty()) {
                                 dateTo = mDateFormatterDB.format(mDateFormatter.parse(dateTo));
-                                if ( dateTo.compareTo(dateFrom) < 0 ) {
+                                if (dateTo.compareTo(dateFrom) < 0) {
                                     Toast.makeText(mContext, "Bitte Rückflugdatum größer dem Hinflugdatum wählen.", Toast.LENGTH_SHORT).show();
                                     return;
                                 }
@@ -277,15 +286,45 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }, newCalendar.get(Calendar.YEAR), newCalendar.get(Calendar.MONTH), newCalendar.get(Calendar.DAY_OF_MONTH));
-
     }
 
-    /*private void getAirportByGPS() {
 
-        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        locationListener = new LocationListener() {
+    private void getAirportByGPS() {
+
+        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 123);
+        }else {
+            doIt();
+        }
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        switch (requestCode) {
+            case 123:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    doIt();
+                }
+        }
+    }
+
+    private void doIt() {
+        Log.e(LOG_TAG, "Method: DoIt()");
+        //mLocationManager = getSystemService(LocationManager.class);
+        mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        List<String> providers = mLocationManager.getAllProviders();
+        Criteria criteria = new Criteria();
+        criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+        criteria.setPowerRequirement(Criteria.POWER_LOW);
+        mProvider = mLocationManager.getBestProvider(criteria, true);
+
+        mLocationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
+                Log.e(LOG_TAG, "Location changed");
                 mLatitude = location.getLatitude();
                 mLongtitude = location.getLongitude();
                 Log.e(LOG_TAG, "Latitude: " + Double.toString(mLatitude) + "/ Longitude: " + Double.toString(mLongtitude));
@@ -306,38 +345,113 @@ public class MainActivity extends AppCompatActivity {
                 Log.e(LOG_TAG, "GPS is disabled");
             }
         };
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-
-            requestPermissions(new String[]{
-                    Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.INTERNET
-            }, 10 );
-            return;
-        } else {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0, locationListener);
-        }
-
+        mLocationManager.requestLocationUpdates(mProvider, 3000, 0, mLocationListener);
+        Location location = mLocationManager.getLastKnownLocation(mProvider);
+        mLatitude = location.getLatitude();
+        mLongtitude = location.getLongitude();
+        Log.e(LOG_TAG, "Initial - Latitude: " + Double.toString(mLatitude) + "/ Longitude: " + Double.toString(mLongtitude));
+        String setText = getclosestairport(mLatitude, mLongtitude);
+        mMultiAutoCompleteOrigin.setText(setText);
     }
 
+    private String getclosestairport(Double latitude, Double longtitude) {
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        switch (requestCode){
-            case 10:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        Double nearestTemp;
+        Double nearest = 200.0;
+        Double airportLat = 0.0;
+        Double airportLon = 0.0;
 
-                return;
+        String airportIATA = "";
+        String airportName = "";
+        String airportCity = "";
+        String airport     = "No airport found";
+
+        InputStream is = getResources().openRawResource(R.raw.airports_full);
+        InputStreamReader csvISR = new InputStreamReader(is);
+
+        CsvReader airports = new CsvReader(csvISR);
+
+        try {
+            airports.readHeaders();
+
+            while (airports.readRecord()) {
+
+                String tempLat = airports.get("LATITUDE");
+                String tempLon = airports.get("LONGTITUDE");
+
+                if (!(tempLat.isEmpty() && tempLon.isEmpty())) {
+                    airportLat = Double.valueOf(tempLat).doubleValue();
+                    airportLon = Double.valueOf(tempLon).doubleValue();
+                } else {
+                    continue;
                 }
+
+
+                //Get closest Latitude
+                //Nähe berechnen
+                nearestTemp = calculateNearness(airportLat, latitude) + calculateNearness(airportLon, longtitude);
+                if (nearestTemp < nearest) {
+                    nearest = nearestTemp;
+                    airportName = airports.get("NAME");
+                    airportIATA = airports.get("IATA");
+                    airportCity = airports.get("CITY");
+                }
+
+
+            }
+
+            airport = airportIATA + " / " + airportName + " / " + airportCity;
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-    }*/
+        return airport;
+    }
+
+    private Double calculateNearness(Double airport, Double currLoc) {
+
+        Double nearness = 0.0;
+
+        if (airport > 0 && currLoc > 0) {
+            if (airport >= currLoc) {
+                nearness = airport - currLoc;
+            } else if (airport < currLoc) {
+                nearness = currLoc - airport;
+            }
+        } else if (airport < 0 && currLoc < 0) {
+            if (airport >= currLoc) {
+                nearness = airport - currLoc;
+            } else if (airport < currLoc) {
+                nearness = currLoc - airport;
+            }
+        } else if (airport > 0 && currLoc < 0) {
+            currLoc = currLoc * (-1);
+            if (airport >= currLoc) {
+                nearness = airport - currLoc;
+            } else if (airport < currLoc) {
+                nearness = currLoc - airport;
+            }
+        } else if (airport < 0 && currLoc > 0) {
+            airport = airport * (-1);
+            if (airport >= currLoc) {
+                nearness = airport - currLoc;
+            } else if (airport < currLoc) {
+                nearness = currLoc - airport;
+            }
+        } else if (airport == 0) {
+            if (currLoc < 0) {
+                currLoc = currLoc * (-1);
+            }
+            nearness = currLoc;
+        } else if (currLoc == 0) {
+            if (airport < 0) {
+                airport = airport * (-1);
+            }
+            nearness = airport;
+        }
+
+        return nearness;
+    }
+
 }
