@@ -292,7 +292,7 @@ public class MainActivity extends AppCompatActivity {
         if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 123);
         }else {
-            doIt();
+            doGPS();
         }
     }
 
@@ -304,12 +304,12 @@ public class MainActivity extends AppCompatActivity {
         switch (requestCode) {
             case 123:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    doIt();
+                    doGPS();
                 }
         }
     }
 
-    private void doIt() {
+    private void doGPS() {
         Log.e(LOG_TAG, "Method: DoIt()");
         Location location = null;
         //mLocationManager = getSystemService(LocationManager.class);
