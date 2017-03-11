@@ -33,8 +33,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-import static iubh.de.philipp.look4flight.R.raw.airports;
-
 public class MainActivity extends AppCompatActivity {
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
@@ -313,6 +311,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void doIt() {
         Log.e(LOG_TAG, "Method: DoIt()");
+        Location location = null;
         //mLocationManager = getSystemService(LocationManager.class);
         mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         List<String> providers = mLocationManager.getAllProviders();
@@ -345,8 +344,13 @@ public class MainActivity extends AppCompatActivity {
                 Log.e(LOG_TAG, "GPS is disabled");
             }
         };
-        mLocationManager.requestLocationUpdates(mProvider, 3000, 0, mLocationListener);
-        Location location = mLocationManager.getLastKnownLocation(mProvider);
+
+        try {
+            mLocationManager.requestLocationUpdates(mProvider, 3000, 0, mLocationListener);
+            location = mLocationManager.getLastKnownLocation(mProvider);
+        } catch (SecurityException se) {
+            Toast.makeText(mContext, "Keine Berechtigung das GPS zu verwenden", Toast.LENGTH_SHORT).show();
+        }
         mLatitude = location.getLatitude();
         mLongtitude = location.getLongitude();
         Log.e(LOG_TAG, "Initial - Latitude: " + Double.toString(mLatitude) + "/ Longitude: " + Double.toString(mLongtitude));
